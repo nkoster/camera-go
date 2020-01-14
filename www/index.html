@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Skeleton</title>
+</head>
+<body>
+<button onclick="start()">Start!</button>
+<button onclick="snap()">Snap!</button><div id="div"></div>
+<video id="video" width="640" height="480" autoplay></video>
+<canvas id="preview" width="640" height="480"></canvas>
+<script>
+var socket = new WebSocket('ws://localhost:8086/ws')
+var start = function () {
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function(stream) {
+      video.setAttribute('autoplay', '');
+      video.setAttribute('muted', '');
+      video.setAttribute('playsinline', '');
+      video.srcObject = stream
+    })
+    .catch(log);
+  }
+var canvas = document.createElement("canvas");
+canvas.width = 640;
+canvas.height = 480;
+
+var snap = function () {
+  canvas.getContext('2d').drawImage(video, 0, 0, 640, 480);
+  preview.getContext('2d').drawImage(canvas, 0, 0, 640, 480);
+}
+
+var streamer = setInterval(function() {
+    canvas.getContext('2d').drawImage(video, 0, 0, 640, 480)
+    canvas.toBlob(function(data) {
+        socket.send(data)
+    })
+}, 100)
+
+socket.onmessage = function(data) {
+    canvas.srcObject = data
+    preview.getContext('2d').drawImage(canvas, 0, 0, 640, 480)
+}
+
+var log = function(msg) {
+    div.innerHTML += "<br>" + msg
+  }
+</script>
+</body>
+</html>
