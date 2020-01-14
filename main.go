@@ -15,13 +15,12 @@ func main() {
 	if serverHTML != "./" {
 		showHTML = "html:" + serverHTML
 	}
-	log.Println("ws2 ->", serverHost+":"+serverPort, showHTML)
+	log.Println("ws video test ->", serverHost+":"+serverPort, showHTML)
 	if serverHTML != "" {
 		fs := http.FileServer(http.Dir(serverHTML))
 		http.Handle("/", fs)
 	}
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		var err error
 		// not safe, only for dev:
 		upgrader.CheckOrigin = func(r *http.Request) bool {
 			return true
@@ -44,7 +43,7 @@ func main() {
 				}
 				if mt == 2 {
 					if err := conn.WriteMessage(2, data); err != nil {
-						log.Println("error sending ready message")
+						log.Println(err)
 					}
 				}
 			}
