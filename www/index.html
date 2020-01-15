@@ -16,7 +16,8 @@ var socket = new WebSocket(proto + '://' + location.host + '/ws')
 var playing = false
 
 var start = function () {
-  navigator.mediaDevices.getUserMedia({ video: true })
+  if (!playing) {
+    navigator.mediaDevices.getUserMedia({ video: true })
     .then(function(stream) {
       video.setAttribute('autoplay', '')
       video.setAttribute('muted', '')
@@ -26,15 +27,17 @@ var start = function () {
     })
     .catch(console.log('Catch!'))
   }
+}
 
 var stop = function () {
+  video.srcObject &&
   video.srcObject.getTracks().forEach(function(track) {
     track.stop()
   })
   playing = false
 }
 
-var canvas = document.createElement("canvas")
+var canvas = document.createElement('canvas')
 canvas.width = 640
 canvas.height = 480
 
@@ -47,9 +50,12 @@ var streamer = setInterval(function () {
   }
 }, 150)
 
+var preview = document.getElementById('preview')
+
 socket.onmessage = function(data) {
     canvas.srcObject = data
     preview.getContext('2d').drawImage(canvas, 0, 0, 640, 480)
+    // console.log(data.data)
 }
 
 </script>
