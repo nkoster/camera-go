@@ -41,12 +41,12 @@ func main() {
 					log.Println("error", connErr)
 					return
 				}
-				if mt == 1 {
-					log.Println(data)
-				}
 				if mt == 2 {
+					log.Println("type 2")
+				}
+				if mt == 1 {
 					for client := range clients {
-						if err := client.WriteMessage(2, data); err != nil {
+						if err := client.WriteMessage(1, data); err != nil {
 							log.Println(err)
 							client.Close()
 							delete(clients, client)
