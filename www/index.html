@@ -8,12 +8,13 @@
 <button onclick="start()">Start</button>
 <button onclick="stop()">Stop</button><div id="div"></div>
 <video id="video" width="640" height="480" autoplay></video>
-<canvas id="preview" width="640" height="480"></canvas>
+<img id="receive" width="640" height="480"/>
 <script>
 
 var proto = location.protocol === 'http:' ? 'ws' : 'wss'
 var socket = new WebSocket(proto + '://' + location.host + '/ws')
 var playing = false
+var image = document.getElementById('receive')
 
 var start = function () {
   if (!playing) {
@@ -25,16 +26,24 @@ var start = function () {
       video.srcObject = stream
       playing = true
     })
-    .catch(console.log('Catch!'))
+    .catch(err => {
+      console.log(err)
+    })
   }
+  socket.onmessage = function(msg) {
+    image.setAttribute('src', msg.data)
+  }
+
 }
 
 var stop = function () {
+  clearInterval(streamer)
   video.srcObject &&
   video.srcObject.getTracks().forEach(function(track) {
     track.stop()
   })
   playing = false
+  socket.onmessage = () => {}
 }
 
 var canvas = document.createElement('canvas')
@@ -44,19 +53,11 @@ canvas.height = 480
 var streamer = setInterval(function () {
   if (playing) {
     canvas.getContext('2d').drawImage(video, 0, 0, 640, 480)
-    canvas.toBlob(function(data) {
-        socket.send(data)
-    })
-  }
-}, 150)
+    socket.send(canvas.toDataURL('image/jpeg', 0.5))
+ }
+}, 200)
 
 var preview = document.getElementById('preview')
-
-socket.onmessage = function(data) {
-    canvas.srcObject = data
-    preview.getContext('2d').drawImage(canvas, 0, 0, 640, 480)
-    // console.log(data.data)
-}
 
 </script>
 </body>
