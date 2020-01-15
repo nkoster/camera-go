@@ -9,6 +9,8 @@ import (
 
 var upgrader = websocket.Upgrader{}
 
+var clients = make(map[*websocket.Conn]bool)
+
 func main() {
 	serverHost, serverPort, serverHTML := args()
 	showHTML := ""
@@ -30,6 +32,7 @@ func main() {
 			log.Println("error", err)
 			return
 		}
+		clients[conn] = true
 		log.Println("connection", r.RemoteAddr)
 		go func(conn *websocket.Conn) {
 			for {
@@ -42,9 +45,16 @@ func main() {
 					log.Println(data)
 				}
 				if mt == 2 {
-					if err := conn.WriteMessage(2, data); err != nil {
-						log.Println(err)
+					for client := range clients {
+						if err := client.WriteMessage(2, data); err != nil {
+							log.Println(err)
+							client.Close()
+							delete(clients, client)
+						}
 					}
+					// if err := conn.WriteMessage(2, data); err != nil {
+					// 	log.Println(err)
+					// }
 				}
 			}
 		}(conn)
