@@ -11,7 +11,7 @@
 <img id="receive" alt=""/>
 <script>
 
-var display = { width: 502, height: 376, quality: 0.4, fps: 17 }
+var display = { width: 502, height: 376, quality: 0.3, fps: 16 }
 var interval = 1000 / display.fps
 var proto = location.protocol === 'http:' ? 'ws' : 'wss'
 var socket = new WebSocket(proto + '://' + location.host + '/ws')
