@@ -7,14 +7,21 @@
 <body>
 <button onclick="start()">Start</button>
 <button onclick="stop()">Stop</button><div id="div"></div>
-<video id="video" width="640" height="480" autoplay></video>
-<img id="receive" width="640" height="480"/>
+<video id="video" autoplay></video>
+<img id="receive" alt=""/>
 <script>
 
+var display = { width: 502, height: 376, quality: 0.4, fps: 17 }
+var interval = 1000 / display.fps
 var proto = location.protocol === 'http:' ? 'ws' : 'wss'
 var socket = new WebSocket(proto + '://' + location.host + '/ws')
 var playing = false
 var image = document.getElementById('receive')
+image.width = display.width
+image.height = display.height
+var video = document.getElementById('video')
+video.width = display.width
+video.height = display.height
 
 var start = function () {
   if (!playing) {
@@ -46,17 +53,17 @@ var stop = function () {
 }
 
 var canvas = document.createElement('canvas')
-canvas.width = 640
-canvas.height = 480
+canvas.width = display.width
+canvas.height = display.height
 
 var streamer = setInterval(function () {
   if (playing) {
-    canvas.getContext('2d').drawImage(video, 0, 0, 640, 480)
+    canvas.getContext('2d').drawImage(video, 0, 0, display.width, display.height)
     canvas.toBlob(function(blob){
       socket.send(blob)
-    }, 'image/jpeg', 0.4)
+    }, 'image/jpeg', display.quality)
  }
-}, 62)
+}, interval)
 
 </script>
 </body>
