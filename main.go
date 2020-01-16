@@ -52,9 +52,6 @@ func main() {
 							delete(clients, client)
 						}
 					}
-					// if err := conn.WriteMessage(2, data); err != nil {
-					// 	log.Println(err)
-					// }
 				}
 			}
 		}(conn)
