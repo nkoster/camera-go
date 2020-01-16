@@ -30,21 +30,19 @@ var start = function () {
       console.log(err)
     })
   }
-  socket.onmessage = function(msg) {
-    var blob = new Blob([msg.data], {type: 'image/jpeg'})
-    image.src = URL.createObjectURL(blob)
-  }
-
 }
 
+socket.onmessage = function(msg) {
+  var blob = new Blob([msg.data], {type: 'image/jpeg'})
+  image.src = URL.createObjectURL(blob)
+}
+  
 var stop = function () {
-  clearInterval(streamer)
   video.srcObject &&
   video.srcObject.getTracks().forEach(function(track) {
     track.stop()
   })
   playing = false
-  socket.onmessage = () => {}
 }
 
 var canvas = document.createElement('canvas')
@@ -56,9 +54,9 @@ var streamer = setInterval(function () {
     canvas.getContext('2d').drawImage(video, 0, 0, 640, 480)
     canvas.toBlob(function(blob){
       socket.send(blob)
-    }, 'image/jpeg', 0.5)
+    }, 'image/jpeg', 0.4)
  }
-}, 100)
+}, 62)
 
 </script>
 </body>
