@@ -31,7 +31,8 @@ var start = function () {
     })
   }
   socket.onmessage = function(msg) {
-    image.setAttribute('src', msg.data)
+    var blob = new Blob([msg.data], {type: 'image/jpeg'})
+    image.src = URL.createObjectURL(blob)
   }
 
 }
@@ -53,9 +54,11 @@ canvas.height = 480
 var streamer = setInterval(function () {
   if (playing) {
     canvas.getContext('2d').drawImage(video, 0, 0, 640, 480)
-    socket.send(canvas.toDataURL('image/jpeg', 0.5))
+    canvas.toBlob(function(blob){
+      socket.send(blob)
+    }, 'image/jpeg', 0.5)
  }
-}, 200)
+}, 100)
 
 var preview = document.getElementById('preview')
 
