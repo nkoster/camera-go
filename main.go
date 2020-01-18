@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -10,6 +11,8 @@ import (
 var upgrader = websocket.Upgrader{}
 
 var clients = make(map[*websocket.Conn]bool)
+
+var mu sync.Mutex
 
 func main() {
 	serverHost, serverPort, serverHTML := args()
@@ -46,10 +49,14 @@ func main() {
 				}
 				if mt == 2 {
 					for client := range clients {
-						if err := client.WriteMessage(2, data); err != nil {
-							log.Println(err)
-							client.Close()
-							delete(clients, client)
+						if client != conn {
+							mu.Lock()
+							if err := client.WriteMessage(2, data); err != nil {
+								log.Println(err)
+								client.Close()
+								delete(clients, client)
+							}
+							mu.Unlock()
 						}
 					}
 				}
