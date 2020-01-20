@@ -5,12 +5,15 @@
 <title>Camera</title>
 </head>
 <body>
+Your session ID: <span id="localid"></span> Remote session ID: <input type="text" id="remoteid" />
 <button onclick="start()">Start</button>
 <button onclick="stop()">Stop</button><div id="div"></div>
 <video id="video" autoplay></video>
 <img id="receive" alt=""/>
 <script>
 
+var localID = document.getElementById('localid')
+var remoteID = document.getElementById('remoteid')
 var display = { width: 502, height: 376, quality: 0.3, fps: 16 }
 var interval = 1000 / display.fps
 var proto = location.protocol === 'http:' ? 'ws' : 'wss'
@@ -27,6 +30,7 @@ var start = function () {
   if (!playing) {
     navigator.mediaDevices.getUserMedia({ video: true })
     .then(function(stream) {
+      socket.send(remoteID.value)
       video.setAttribute('autoplay', '')
       video.setAttribute('muted', '')
       video.setAttribute('playsinline', '')
@@ -40,10 +44,14 @@ var start = function () {
 }
 
 socket.onmessage = function(msg) {
-  var blob = new Blob([msg.data], {type: 'image/jpeg'})
-  image.src = URL.createObjectURL(blob)
+  if (typeof msg.data === 'string') {
+    localid.innerHTML = msg.data
+  } else {
+    var blob = new Blob([msg.data], {type: 'image/jpeg'})
+    image.src = URL.createObjectURL(blob)
+  }
 }
-  
+
 var stop = function () {
   video.srcObject &&
   video.srcObject.getTracks().forEach(function(track) {
