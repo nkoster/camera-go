@@ -5,8 +5,9 @@
 <title>Camera</title>
 </head>
 <body>
-Your session ID: <span id="localid"></span> Remote session ID: <input type="text" id="remoteid" />
-<button onclick="start()">Start</button>
+Your ID is <b><span style="padding-right: 20px;" id="localid"></span></b> &nbsp; 
+Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp; 
+<button onclick="start()" style="margin-left: 40px;">Start</button>
 <button onclick="stop()">Stop</button><div id="div"></div>
 <video id="video" autoplay></video>
 <img id="receive" alt=""/>
@@ -30,7 +31,10 @@ var start = function () {
   if (!playing) {
     navigator.mediaDevices.getUserMedia({ video: true })
     .then(function(stream) {
-      socket.send(remoteID.value)
+      var rID = remoteID.value
+      socket.send(rID)
+      var span = '<span>' + rID + '<span>'
+      remoteID.outerHTML = span
       video.setAttribute('autoplay', '')
       video.setAttribute('muted', '')
       video.setAttribute('playsinline', '')
