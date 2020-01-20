@@ -10,7 +10,7 @@ import (
 
 var upgrader = websocket.Upgrader{}
 
-var clients = make(map[*websocket.Conn]bool)
+var clients = make(map[string]*websocket.Conn)
 
 var mu sync.Mutex
 
@@ -22,8 +22,9 @@ func main() {
 	}
 	log.Println("ws video test ->", serverHost+":"+serverPort, showHTML)
 	if serverHTML != "" {
-		fs := http.FileServer(http.Dir(serverHTML))
-		http.Handle("/", fs)
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, serverHTML)
+		})
 	}
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		// not safe, only for dev:
@@ -35,8 +36,9 @@ func main() {
 			log.Println("error", err)
 			return
 		}
-		clients[conn] = true
-		log.Println("connection", r.RemoteAddr)
+		ID := RandomString(10)
+		clients[ID] = conn
+		log.Println("connection", r.RemoteAddr, ID)
 		go func(conn *websocket.Conn) {
 			for {
 				mt, data, connErr := conn.ReadMessage()
@@ -48,13 +50,13 @@ func main() {
 					log.Println("type 1")
 				}
 				if mt == 2 {
-					for client := range clients {
-						if client != conn {
+					for id, client := range clients {
+						if id != ID {
 							mu.Lock()
 							if err := client.WriteMessage(2, data); err != nil {
 								log.Println(err)
 								client.Close()
-								delete(clients, client)
+								delete(clients, id)
 							}
 							mu.Unlock()
 						}
