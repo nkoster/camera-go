@@ -10,7 +10,14 @@ import (
 
 var upgrader = websocket.Upgrader{}
 
-var clients = make(map[string]*websocket.Conn)
+// Client do a shit
+type Client struct {
+	conn     *websocket.Conn
+	localID  string
+	remoteID string
+}
+
+var clients = make(map[string]Client)
 
 var mu sync.Mutex
 
@@ -36,8 +43,15 @@ func main() {
 			log.Println("error", err)
 			return
 		}
-		ID := RandomString(10)
-		clients[ID] = conn
+		ID := RandomString(3)
+		clients[ID] = Client{conn, ID, ""}
+		mu.Lock()
+		if err := conn.WriteMessage(1, []byte(ID)); err != nil {
+			log.Println(err)
+			conn.Close()
+			delete(clients, ID)
+		}
+		mu.Unlock()
 		log.Println("connection", r.RemoteAddr, ID)
 		go func(conn *websocket.Conn) {
 			for {
@@ -47,15 +61,17 @@ func main() {
 					return
 				}
 				if mt == 1 {
-					log.Println("type 1")
+					clients[ID] = Client{conn: conn, localID: ID, remoteID: string(data)}
 				}
 				if mt == 2 {
 					for id, client := range clients {
-						if id != ID {
+						if id == clients[ID].remoteID && client.conn != nil {
 							mu.Lock()
-							if err := client.WriteMessage(2, data); err != nil {
+							if err := client.conn.WriteMessage(2, data); err != nil {
 								log.Println(err)
-								client.Close()
+								if err := client.conn.Close(); err != nil {
+									log.Println(err)
+								}
 								delete(clients, id)
 							}
 							mu.Unlock()
