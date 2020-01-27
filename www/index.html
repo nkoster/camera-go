@@ -44,7 +44,7 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
     if (typeof msg.data === 'string') {
       localid.innerHTML = msg.data
     } else {
-      let blob = new Blob([msg.data], {type: 'image/jpeg'})
+      const blob = new Blob([msg.data], {type: 'image/jpeg'})
       image.src = URL.createObjectURL(blob)
     }
   }
