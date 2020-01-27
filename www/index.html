@@ -7,81 +7,85 @@
 <body>
 Your ID is <b><span style="padding-right: 20px;" id="localid"></span></b> &nbsp; 
 Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp; 
-<button onclick="start()" style="margin-left: 40px;">Start</button>
-<button onclick="stop()">Stop</button><div id="div"></div>
+<button id="start-button" style="margin-left: 40px;">Start</button>
+<button id="stop-button" onclick="stop()">Stop</button><div id="div"></div>
 <hr />
 <video id="video" autoplay></video>
 <img id="receive" alt=""/>
 <script>
+(() => {
+  const
+    localID = document.getElementById('localid'),
+    remoteID = document.getElementById('remoteid'),
+    startButton = document.getElementById('start-button'),
+    stopButton = document.getElementById('stop-button'),
+    display = { width: 502, height: 376, quality: 0.3, fps: 16 }
+    interval = 1000 / display.fps,
+    proto = location.protocol === 'http:' ? 'ws' : 'wss',
+    socket = new WebSocket(proto + '://' + location.host + '/ws'),
+    image = document.getElementById('receive'),
+    video = document.getElementById('video'),
+    canvas = document.createElement('canvas')
 
-var localID = document.getElementById('localid')
-var remoteID = document.getElementById('remoteid')
-var display = { width: 502, height: 376, quality: 0.3, fps: 16 }
-var interval = 1000 / display.fps
-var proto = location.protocol === 'http:' ? 'ws' : 'wss'
-var socket = new WebSocket(proto + '://' + location.host + '/ws')
-var playing = false
-var image = document.getElementById('receive')
-image.width = display.width
-image.height = display.height
-var video = document.getElementById('video')
-video.width = display.width
-video.height = display.height
-var firstTime = true
+  let
+    firstTime = true,
+    playing = false
 
-var start = function () {
-  if (!playing && remoteID.value.length > 2) {
-    navigator.mediaDevices.getUserMedia({ video: true })
-    .then(function(stream) {
-      if (firstTime) {
-        firstTime = false
-        var rID = remoteID.value
-        socket.send(rID)
-        var span = '<span>' + rID + '<span>'
-        remoteID.outerHTML = span
-      }
-      video.setAttribute('autoplay', '')
-      video.setAttribute('muted', '')
-      video.setAttribute('playsinline', '')
-      video.srcObject = stream
-      playing = true
-    })
-    .catch(err => {
-      console.log(err)
-    })
+  image.width = display.width
+  image.height = display.height
+
+  video.width = display.width
+  video.height = display.height
+
+  canvas.width = display.width
+  canvas.height = display.height
+
+  socket.onmessage = msg => {
+    if (typeof msg.data === 'string') {
+      localid.innerHTML = msg.data
+    } else {
+      let blob = new Blob([msg.data], {type: 'image/jpeg'})
+      image.src = URL.createObjectURL(blob)
+    }
   }
-}
 
-socket.onmessage = function(msg) {
-  if (typeof msg.data === 'string') {
-    localid.innerHTML = msg.data
-  } else {
-    var blob = new Blob([msg.data], {type: 'image/jpeg'})
-    image.src = URL.createObjectURL(blob)
+  startButton.onclick = () => {
+    if (!playing && remoteID.value.length > 2) {
+      navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        if (firstTime) {
+          firstTime = false
+          socket.send(remoteID.value)
+          remoteID.outerHTML = '<span>' + remoteID.value + '<span>'
+        }
+        video.setAttribute('autoplay', '')
+        video.setAttribute('muted', '')
+        video.setAttribute('playsinline', '')
+        video.srcObject = stream
+        playing = true
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    }
   }
-}
 
-var stop = function () {
-  video.srcObject &&
-  video.srcObject.getTracks().forEach(function(track) {
-    track.stop()
-  })
-  playing = false
-}
+  stopButton.onclick = () => {
+    video.srcObject &&
+    video.srcObject.getTracks().forEach(track => {
+      track.stop()
+    })
+    playing = false
+  }
 
-var canvas = document.createElement('canvas')
-canvas.width = display.width
-canvas.height = display.height
+  const streamer = setInterval(function () {
+    if (playing) {
+      canvas.getContext('2d').drawImage(video, 0, 0, display.width, display.height)
+      canvas.toBlob(blob => { socket.send(blob) }, 'image/jpeg', display.quality)
+    }
+  }, interval)
 
-var streamer = setInterval(function () {
-  if (playing) {
-    canvas.getContext('2d').drawImage(video, 0, 0, display.width, display.height)
-    canvas.toBlob(function(blob){
-      socket.send(blob)
-    }, 'image/jpeg', display.quality)
- }
-}, interval)
-
+})()
 </script>
 </body>
 </html>
