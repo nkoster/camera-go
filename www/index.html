@@ -78,7 +78,7 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
     playing = false
   }
 
-  const streamer = setInterval(function () {
+  const streamer = setInterval(() => {
     if (playing) {
       canvas.getContext('2d').drawImage(video, 0, 0, display.width, display.height)
       canvas.toBlob(blob => { socket.send(blob) }, 'image/jpeg', display.quality)
