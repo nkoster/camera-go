@@ -9,6 +9,7 @@ Your ID is <b><span style="padding-right: 20px;" id="localid"></span></b> &nbsp;
 Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp; 
 <button onclick="start()" style="margin-left: 40px;">Start</button>
 <button onclick="stop()">Stop</button><div id="div"></div>
+<hr />
 <video id="video" autoplay></video>
 <img id="receive" alt=""/>
 <script>
@@ -29,7 +30,7 @@ video.height = display.height
 var firstTime = true
 
 var start = function () {
-  if (!playing) {
+  if (!playing && remoteID.value.length > 2) {
     navigator.mediaDevices.getUserMedia({ video: true })
     .then(function(stream) {
       if (firstTime) {
