@@ -33,7 +33,7 @@ func main() {
 			http.ServeFile(w, r, serverHTML)
 		})
 	}
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/cam", func(w http.ResponseWriter, r *http.Request) {
 		// not safe, only for dev:
 		upgrader.CheckOrigin = func(r *http.Request) bool {
 			return true
@@ -52,7 +52,7 @@ func main() {
 			delete(clients, ID)
 		}
 		mu.Unlock()
-		log.Println("connection", r.RemoteAddr, ID)
+		log.Println("cam connection", r.RemoteAddr, ID)
 		go func(conn *websocket.Conn) {
 			for {
 				mt, data, connErr := conn.ReadMessage()
@@ -66,6 +66,42 @@ func main() {
 				if mt == 2 {
 					for id, client := range clients {
 						if id == clients[ID].remoteID && client.conn != nil {
+							mu.Lock()
+							if err := client.conn.WriteMessage(2, data); err != nil {
+								log.Println(err)
+								if err := client.conn.Close(); err != nil {
+									log.Println(err)
+								}
+								delete(clients, id)
+							}
+							mu.Unlock()
+						}
+					}
+				}
+			}
+		}(conn)
+	})
+	http.HandleFunc("/mic", func(w http.ResponseWriter, r *http.Request) {
+		// not safe, only for dev:
+		upgrader.CheckOrigin = func(r *http.Request) bool {
+			return true
+		}
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Println("error", err)
+			return
+		}
+		log.Println("mic connection", r.RemoteAddr)
+		go func(conn *websocket.Conn) {
+			for {
+				mt, data, connErr := conn.ReadMessage()
+				if connErr != nil {
+					log.Println("error", connErr)
+					return
+				}
+				if mt == 2 {
+					for id, client := range clients {
+						if id == client.remoteID && client.conn != nil {
 							mu.Lock()
 							if err := client.conn.WriteMessage(2, data); err != nil {
 								log.Println(err)
