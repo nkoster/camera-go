@@ -22,7 +22,8 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
     display = { width: 502, height: 376, quality: 0.3, fps: 16 }
     interval = 1000 / display.fps,
     proto = location.protocol === 'http:' ? 'ws' : 'wss',
-    socket = new WebSocket(proto + '://' + location.host + '/ws'),
+    socketCam = new WebSocket(proto + '://' + location.host + '/cam'),
+    socketMic = new WebSocket(proto + '://' + location.host + '/mic'),
     image = document.getElementById('receive'),
     video = document.getElementById('video'),
     canvas = document.createElement('canvas')
@@ -40,7 +41,7 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
   canvas.width = display.width
   canvas.height = display.height
 
-  socket.onmessage = msg => {
+  socketCam.onmessage = msg => {
     if (typeof msg.data === 'string') {
       localid.innerHTML = msg.data
     } else {
@@ -49,20 +50,45 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
     }
   }
 
+  socketMic.onmessage = msg => {
+    if (typeof msg.data === 'string') {
+      console.log(msg)
+      // localid.innerHTML = msg.data
+    } else {
+      // const blob = new Blob([msg.data], {type: ''})
+      // image.src = URL.createObjectURL(blob)
+    }
+  }
+
   startButton.onclick = () => {
     if (!playing && remoteID.value.length > 2) {
       navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
+      .then(streamCam => {
         if (firstTime) {
           firstTime = false
-          socket.send(remoteID.value)
+          socketCam.send(remoteID.value)
           remoteID.outerHTML = '<span>' + remoteID.value + '<span>'
         }
         video.setAttribute('autoplay', '')
         video.setAttribute('muted', '')
         video.setAttribute('playsinline', '')
-        video.srcObject = stream
+        video.srcObject = streamCam
         playing = true
+      })
+      .catch(err => {
+        console.log(err)
+      })
+
+      navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(streamMic => {
+        const context = new AudioContext()
+        const source = context.createMediaStreamSource(streamMic)
+        const processor = context.createScriptProcessor(1024, 1, 1)
+        source.connect(processor)
+        processor.connect(context.destination)
+        processor.onaudioprocess = evt => {
+          playing && socketMic.send(evt.inputBuffer)
+        }
       })
       .catch(err => {
         console.log(err)
@@ -81,7 +107,7 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
   const streamer = setInterval(() => {
     if (playing) {
       canvas.getContext('2d').drawImage(video, 0, 0, display.width, display.height)
-      canvas.toBlob(blob => { socket.send(blob) }, 'image/jpeg', display.quality)
+      canvas.toBlob(blob => { socketCam.send(blob) }, 'image/jpeg', display.quality)
     }
   }, interval)
 
