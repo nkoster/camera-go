@@ -60,7 +60,7 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
       localid.innerHTML = msg.data
     } else {
       if (playing) {
-        audioBuffer = audioCtx.createBuffer(1, 4096, 20000)
+        audioBuffer = audioCtx.createBuffer(1, 2048, 44100)
         audioBuffer.getChannelData(0).set(new Float32Array(msg.data))
         source = audioCtx.createBufferSource()
         source.buffer = audioBuffer
@@ -96,7 +96,7 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
       .then(streamMic => {
         const context = new AudioContext()
         const source = context.createMediaStreamSource(streamMic)
-        const processor = context.createScriptProcessor(1024, 1, 1)
+        const processor = context.createScriptProcessor(2048, 1, 1)
         source.connect(processor)
         processor.connect(context.destination)
         processor.onaudioprocess = evt => {
