@@ -10,7 +10,7 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
 <button id="start-button" style="margin-left: 40px;">Start</button>
 <button id="stop-button">Stop</button><div id="div"></div>
 <hr />
-<video id="video" autoplay></video>
+<video id="video" autoplay></video><audio id="audio"></audio>
 <img id="receive" alt=""/>
 <script>
 (() => {
@@ -26,11 +26,14 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
     socketMic = new WebSocket(proto + '://' + location.host + '/mic'),
     image = document.getElementById('receive'),
     video = document.getElementById('video'),
+    audio = document.getElementById('audio'),
     canvas = document.createElement('canvas')
 
   let
     firstTime = true,
     playing = false
+
+  socketMic.binaryType = 'arraybuffer'
 
   image.width = display.width
   image.height = display.height
@@ -44,6 +47,7 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
   socketCam.onmessage = msg => {
     if (typeof msg.data === 'string') {
       localid.innerHTML = msg.data
+      setTimeout(() => socketMic.send(msg.data), 100)
     } else {
       const blob = new Blob([msg.data], {type: 'image/jpeg'})
       image.src = URL.createObjectURL(blob)
@@ -53,10 +57,16 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
   socketMic.onmessage = msg => {
     if (typeof msg.data === 'string') {
       console.log(msg)
-      // localid.innerHTML = msg.data
+      localid.innerHTML = msg.data
     } else {
-      // const blob = new Blob([msg.data], {type: ''})
-      // image.src = URL.createObjectURL(blob)
+      if (playing) {
+        audioBuffer = audioCtx.createBuffer(1, 4096, 20000)
+        audioBuffer.getChannelData(0).set(new Float32Array(msg.data))
+        source = audioCtx.createBufferSource()
+        source.buffer = audioBuffer
+        source.connect(audioCtx.destination)
+        source.start(0)
+      }
     }
   }
 
@@ -74,6 +84,9 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
         video.setAttribute('playsinline', '')
         video.srcObject = streamCam
         playing = true
+        audioCtx = new AudioContext()
+        track = audioCtx.createMediaElementSource(audio)
+        track.connect(audioCtx.destination)
       })
       .catch(err => {
         console.log(err)
@@ -87,7 +100,7 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
         source.connect(processor)
         processor.connect(context.destination)
         processor.onaudioprocess = evt => {
-          playing && socketMic.send(evt.inputBuffer)
+          playing && socketMic.send(new Float32Array(evt.inputBuffer.getChannelData(0)))
         }
       })
       .catch(err => {
