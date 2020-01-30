@@ -17,7 +17,15 @@ type Client struct {
 	remoteID string
 }
 
+// MicClient do a shit
+type MicClient struct {
+	active bool
+}
+
 var clients = make(map[string]Client)
+
+// MicClients do a shit
+var MicClients = make(map[*websocket.Conn]MicClient)
 
 var mu sync.Mutex
 
@@ -81,6 +89,7 @@ func main() {
 			}
 		}(conn)
 	})
+
 	http.HandleFunc("/mic", func(w http.ResponseWriter, r *http.Request) {
 		// not safe, only for dev:
 		upgrader.CheckOrigin = func(r *http.Request) bool {
@@ -92,6 +101,9 @@ func main() {
 			return
 		}
 		log.Println("mic connection", r.RemoteAddr)
+
+		MicClients[conn] = MicClient{true}
+
 		go func(conn *websocket.Conn) {
 			for {
 				mt, data, connErr := conn.ReadMessage()
@@ -100,15 +112,16 @@ func main() {
 					return
 				}
 				if mt == 2 {
-					for id, client := range clients {
-						if id == client.remoteID && client.conn != nil {
+					for id := range MicClients {
+						if conn != id {
+							// log.Println("mic sending")
 							mu.Lock()
-							if err := client.conn.WriteMessage(2, data); err != nil {
+							if err := id.WriteMessage(2, data); err != nil {
 								log.Println(err)
-								if err := client.conn.Close(); err != nil {
+								if err := id.Close(); err != nil {
 									log.Println(err)
 								}
-								delete(clients, id)
+								delete(MicClients, id)
 							}
 							mu.Unlock()
 						}
@@ -117,5 +130,6 @@ func main() {
 			}
 		}(conn)
 	})
+
 	log.Fatal(http.ListenAndServe(serverHost+":"+serverPort, nil))
 }
