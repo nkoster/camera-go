@@ -1,5 +1,5 @@
 # camera-go
-Camera and microphone via websockets, experiment
+Camera and microphone via websockets.
 
 I'm using the Golang [Gorilla](https://github.com/gorilla/websocket/) websocket framework for the server. 
 
