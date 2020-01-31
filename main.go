@@ -10,28 +10,23 @@ import (
 
 var upgrader = websocket.Upgrader{}
 
-// Client do a shit
-type Client struct {
+// CamClient do your shit
+type CamClient struct {
 	conn     *websocket.Conn
 	localID  string
 	remoteID string
 }
 
-// MicClient do a shit
+// MicClient do your shit
 type MicClient struct {
 	conn     *websocket.Conn
 	localID  string
 	remoteID string
 }
 
-// type MicClient struct {
-// 	active bool
-// }
+var camClients = make(map[string]CamClient)
 
-var clients = make(map[string]Client)
-
-// MicClients do a shit
-// var MicClients = make(map[*websocket.Conn]MicClient)
+// MicClients do your shit
 var micClients = make(map[string]MicClient)
 
 var mu sync.Mutex
@@ -49,7 +44,6 @@ func main() {
 		})
 	}
 	http.HandleFunc("/cam", func(w http.ResponseWriter, r *http.Request) {
-		// not safe, only for dev:
 		upgrader.CheckOrigin = func(r *http.Request) bool {
 			return true
 		}
@@ -59,12 +53,12 @@ func main() {
 			return
 		}
 		ID := RandomString(3)
-		clients[ID] = Client{conn, ID, ""}
+		camClients[ID] = CamClient{conn, ID, ""}
 		mu.Lock()
 		if err := conn.WriteMessage(1, []byte(ID)); err != nil {
 			log.Println(err)
 			conn.Close()
-			delete(clients, ID)
+			delete(camClients, ID)
 		}
 		mu.Unlock()
 		log.Println("cam connection", r.RemoteAddr, ID)
@@ -76,18 +70,18 @@ func main() {
 					return
 				}
 				if mt == 1 {
-					clients[ID] = Client{conn: conn, localID: ID, remoteID: string(data)}
+					camClients[ID] = CamClient{conn: conn, localID: ID, remoteID: string(data)}
 				}
 				if mt == 2 {
-					for id, client := range clients {
-						if id == clients[ID].remoteID && client.conn != nil {
+					for id, client := range camClients {
+						if id == camClients[ID].remoteID && client.conn != nil {
 							mu.Lock()
 							if err := client.conn.WriteMessage(2, data); err != nil {
 								log.Println(err)
 								if err := client.conn.Close(); err != nil {
 									log.Println(err)
 								}
-								delete(clients, id)
+								delete(camClients, id)
 							}
 							mu.Unlock()
 						}
@@ -112,7 +106,7 @@ func main() {
 		if err := conn.WriteMessage(1, []byte(ID)); err != nil {
 			log.Println(err)
 			conn.Close()
-			delete(clients, ID)
+			delete(micClients, ID)
 		}
 		mu.Unlock()
 		log.Println("mic connection", r.RemoteAddr, ID)
