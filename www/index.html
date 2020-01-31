@@ -3,6 +3,22 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Camera</title>
+<style>
+#container {
+  position: relative;
+  border: 1px solid red;
+  width: 502px;
+  height: 376px;
+}
+#video {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 125px;
+  height: 91px;
+}
+
+</style>
 </head>
 <body>
 Your camera ID is <b><span style="padding-right: 20px;" id="localcamid"></span></b> &nbsp; 
@@ -12,8 +28,10 @@ Remote microphone ID is <b><input type="text" id="remotemicid" /></b> &nbsp;
 <button id="start-button" style="margin-left: 40px;">Start</button>
 <button id="stop-button">Stop</button><div id="div"></div>
 <hr />
-<video id="video" autoplay></video><audio id="audio"></audio>
-<img id="receive" alt=""/>
+<div id="container">
+  <video id="video" autoplay></video><audio id="audio"></audio>
+  <img id="receive" alt=""/>
+</div>
 <script>
 (() => {
   const
