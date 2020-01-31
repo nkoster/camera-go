@@ -19,13 +19,20 @@ type Client struct {
 
 // MicClient do a shit
 type MicClient struct {
-	active bool
+	conn     *websocket.Conn
+	localID  string
+	remoteID string
 }
+
+// type MicClient struct {
+// 	active bool
+// }
 
 var clients = make(map[string]Client)
 
 // MicClients do a shit
-var MicClients = make(map[*websocket.Conn]MicClient)
+// var MicClients = make(map[*websocket.Conn]MicClient)
+var micClients = make(map[string]MicClient)
 
 var mu sync.Mutex
 
@@ -91,7 +98,6 @@ func main() {
 	})
 
 	http.HandleFunc("/mic", func(w http.ResponseWriter, r *http.Request) {
-		// not safe, only for dev:
 		upgrader.CheckOrigin = func(r *http.Request) bool {
 			return true
 		}
@@ -100,9 +106,16 @@ func main() {
 			log.Println("error", err)
 			return
 		}
-		log.Println("mic connection", r.RemoteAddr)
-
-		MicClients[conn] = MicClient{true}
+		ID := RandomString(3)
+		micClients[ID] = MicClient{conn, ID, ""}
+		mu.Lock()
+		if err := conn.WriteMessage(1, []byte(ID)); err != nil {
+			log.Println(err)
+			conn.Close()
+			delete(clients, ID)
+		}
+		mu.Unlock()
+		log.Println("mic connection", r.RemoteAddr, ID)
 
 		go func(conn *websocket.Conn) {
 			for {
@@ -111,17 +124,19 @@ func main() {
 					log.Println("error", connErr)
 					return
 				}
+				if mt == 1 {
+					micClients[ID] = MicClient{conn: conn, localID: ID, remoteID: string(data)}
+				}
 				if mt == 2 {
-					for id := range MicClients {
-						if conn != id {
-							// log.Println("mic sending")
+					for id, client := range micClients {
+						if id == micClients[ID].remoteID && client.conn != nil {
 							mu.Lock()
-							if err := id.WriteMessage(2, data); err != nil {
+							if err := client.conn.WriteMessage(2, data); err != nil {
 								log.Println(err)
-								if err := id.Close(); err != nil {
+								if err := client.conn.Close(); err != nil {
 									log.Println(err)
 								}
-								delete(MicClients, id)
+								delete(micClients, id)
 							}
 							mu.Unlock()
 						}
