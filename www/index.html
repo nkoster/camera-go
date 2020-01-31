@@ -5,8 +5,10 @@
 <title>Camera</title>
 </head>
 <body>
-Your ID is <b><span style="padding-right: 20px;" id="localid"></span></b> &nbsp; 
-Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp; 
+Your camera ID is <b><span style="padding-right: 20px;" id="localcamid"></span></b> &nbsp; 
+Remote camera ID is <b><input type="text" id="remotecamid" /></b><br>
+Your microphone ID is <b><span style="padding-right: 20px;" id="localmicid"></span></b> &nbsp; 
+Remote microphone ID is <b><input type="text" id="remotemicid" /></b> &nbsp; 
 <button id="start-button" style="margin-left: 40px;">Start</button>
 <button id="stop-button">Stop</button><div id="div"></div>
 <hr />
@@ -15,8 +17,10 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
 <script>
 (() => {
   const
-    localID = document.getElementById('localid'),
-    remoteID = document.getElementById('remoteid'),
+    localCamID = document.getElementById('localcamid'),
+    localMicID = document.getElementById('localmicid'),
+    remoteCamID = document.getElementById('remotecamid'),
+    remoteMicID = document.getElementById('remotemicid'),
     startButton = document.getElementById('start-button'),
     stopButton = document.getElementById('stop-button'),
     display = { width: 502, height: 376, quality: 0.3, fps: 16 }
@@ -46,8 +50,8 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
 
   socketCam.onmessage = msg => {
     if (typeof msg.data === 'string') {
-      localid.innerHTML = msg.data
-      setTimeout(() => socketMic.send(msg.data), 100)
+      localCamID.innerHTML = msg.data
+      setTimeout(() => socketCam.send(msg.data), 100)
     } else {
       const blob = new Blob([msg.data], {type: 'image/jpeg'})
       image.src = URL.createObjectURL(blob)
@@ -57,7 +61,8 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
   socketMic.onmessage = msg => {
     if (typeof msg.data === 'string') {
       console.log(msg)
-      localid.innerHTML = msg.data
+      localMicID.innerHTML = msg.data
+      setTimeout(() => socketMic.send(msg.data), 100)
     } else {
       if (playing) {
         audioBuffer = audioCtx.createBuffer(1, 2048, 44100)
@@ -71,13 +76,14 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
   }
 
   startButton.onclick = () => {
-    if (!playing && remoteID.value.length > 2) {
+    if (!playing && remoteCamID.value.length > 2) {
       navigator.mediaDevices.getUserMedia({ video: true })
       .then(streamCam => {
         if (firstTime) {
           firstTime = false
-          socketCam.send(remoteID.value)
-          remoteID.outerHTML = '<span>' + remoteID.value + '<span>'
+          socketCam.send(remoteCamID.value)
+          remoteCamID.outerHTML = '<span>' + remoteCamID.value + '<span>'
+          remoteMicID.outerHTML = '<span>' + remoteMicID.value + '<span>'
         }
         video.setAttribute('autoplay', '')
         video.setAttribute('muted', '')
@@ -112,6 +118,10 @@ Remote ID is <b><input type="text" id="remoteid" /></b> &nbsp;
   stopButton.onclick = () => {
     video.srcObject &&
     video.srcObject.getTracks().forEach(track => {
+      track.stop()
+    })
+   audio.srcObject &&
+    audio.srcObject.getTracks().forEach(track => {
       track.stop()
     })
     playing = false
