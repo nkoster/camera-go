@@ -58,8 +58,7 @@ button {
         remote microphone ID is <b><input type="text" id="remotemicid" /></b>  
       </div>
       <div class="buttons">
-        <button id="start-button">Start</button>
-        <button id="stop-button">Stop</button>  
+        <button id="play-button">Start</button>
       </div>
       <div class="display">
         <video id="video" autoplay></video>
@@ -75,8 +74,7 @@ button {
     localMicID = document.getElementById('localmicid'),
     remoteCamID = document.getElementById('remotecamid'),
     remoteMicID = document.getElementById('remotemicid'),
-    startButton = document.getElementById('start-button'),
-    stopButton = document.getElementById('stop-button'),
+    playButton = document.getElementById('play-button'),
     display = { width: 502, height: 376, quality: 0.3, fps: 16 },
     interval = 1000 / display.fps,
     proto = location.protocol === 'http:' ? 'ws' : 'wss',
@@ -129,15 +127,15 @@ button {
     }
   }
 
-  // playButton.onclick = () => {
-  //   if (playing) {
-  //     stopPlaying()
-  //   } else {
-  //     startPlaying()
-  //   }
-  // }
+  playButton.onclick = () => {
+    if (playing) {
+      stopPlaying()
+    } else {
+      startPlaying()
+    }
+  }
 
-  startButton.onclick = () => {
+  const startPlaying = () => {
     if (!playing && remoteCamID.value.length > 2) {
       navigator.mediaDevices.getUserMedia({ video: true })
       .then(streamCam => {
@@ -152,6 +150,7 @@ button {
         video.setAttribute('playsinline', '')
         video.srcObject = streamCam
         playing = true
+        playButton.innerText = 'Stop'
         video.style.background = 'none'
         audioCtx = new AudioContext()
         track = audioCtx.createMediaElementSource(audio)
@@ -178,16 +177,18 @@ button {
     }
   }
 
-  stopButton.onclick = () => {
+  const stopPlaying = () => {
     video.srcObject &&
     video.srcObject.getTracks().forEach(track => {
       track.stop()
     })
-   audio.srcObject &&
+    audio.srcObject &&
     audio.srcObject.getTracks().forEach(track => {
+      console.log('audio stopped')
       track.stop()
     })
     playing = false
+    playButton.innerText = 'Start'
   }
 
   const streamer = setInterval(() => {
