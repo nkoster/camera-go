@@ -4,32 +4,70 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Camera</title>
 <style>
-#container {
-  position: relative;
-  width: 502px;
-  height: 376px;
+body { text-align: center; font-size: 125%; }
+div.container {
+    position: relative;
+    display: inline-block;
+    padding: 20px;
+    background: #f0f0f0 }
+div.container p {
+  text-align: center;
 }
+div.display {
+  position: relative;
+  display: inline-block;
+  background:orange;
+  margin-top: 20px;
+  overflow: hidden;
+  width: 502px;
+  height: 376px }
 #video {
   position: absolute;
-  top: 1px;
-  right: 1px;
+  display: block;
+  background: palegreen;
+  z-index: 100;
+  top: -1px;
+  right: -2px;
   width: 125px;
-  height: 91px;
+  border-bottom-left-radius: 10px;
+  height: 91px }
+#receive {
+  position: relative;
+  width: 502px;
+  height: 376px }
+div.id {
+  position: relative;
+  padding-bottom: 20px;
 }
+button {
+  margin: 10px;
+  font-size: 130%;
+  width:45%;
+  height: 50px }
 </style>
 </head>
 <body>
-your <i>camera</i> ID is <b><span id="localcamid"></span></b>,
-remote camera ID is <b><input type="text" id="remotecamid" /></b><hr>
-your <i>microphone</i> ID is <b><span id="localmicid"></span></b>,
-remote microphone ID is <b><input type="text" id="remotemicid" /></b><hr>
-<button id="start-button">Start</button>
-<button id="stop-button">Stop</button><div id="div"></div>
-<hr />
-<div id="container">
-  <video id="video" autoplay></video><audio id="audio"></audio>
-  <img id="receive" alt=""/>
-</div>
+  <div class="container">
+    <p>
+      <div class="id">
+        your <i>camera</i> ID is <b><span id="localcamid"></span></b>,
+        remote camera ID is <b><input type="text" id="remotecamid" /></b>  
+      </div>
+      <div class="id">
+        your <i>microphone</i> ID is <b><span id="localmicid"></span></b>,
+        remote microphone ID is <b><input type="text" id="remotemicid" /></b>  
+      </div>
+      <div class="buttons">
+        <button id="start-button">Start</button>
+        <button id="stop-button">Stop</button>  
+      </div>
+      <div class="display">
+        <video id="video" autoplay></video>
+        <img id="receive" alt=""/>
+      </div>
+      <audio id="audio"></audio>
+    </p>
+  </div>
 <script>
 (() => {
   const
@@ -91,6 +129,14 @@ remote microphone ID is <b><input type="text" id="remotemicid" /></b><hr>
     }
   }
 
+  // playButton.onclick = () => {
+  //   if (playing) {
+  //     stopPlaying()
+  //   } else {
+  //     startPlaying()
+  //   }
+  // }
+
   startButton.onclick = () => {
     if (!playing && remoteCamID.value.length > 2) {
       navigator.mediaDevices.getUserMedia({ video: true })
@@ -106,6 +152,7 @@ remote microphone ID is <b><input type="text" id="remotemicid" /></b><hr>
         video.setAttribute('playsinline', '')
         video.srcObject = streamCam
         playing = true
+        video.style.background = 'none'
         audioCtx = new AudioContext()
         track = audioCtx.createMediaElementSource(audio)
         track.connect(audioCtx.destination)
