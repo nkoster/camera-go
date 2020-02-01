@@ -25,7 +25,7 @@ div.display {
 #video {
   position: absolute;
   display: block;
-  background: palegreen;
+  background: skyblue;
   z-index: 100;
   top: -1px;
   right: -2px;
@@ -109,6 +109,8 @@ input {
 
   canvas.width = display.width
   canvas.height = display.height
+
+  playButton.disabled = true
 
   socketCam.onmessage = msg => {
     if (typeof msg.data === 'string') {
@@ -207,6 +209,14 @@ input {
       canvas.toBlob(blob => { socketCam.send(blob) }, 'image/jpeg', display.quality)
     }
   }, interval)
+
+  const enablePlayButton = setInterval(() => {
+    if (remoteCamID.value.length > 2 && remoteMicID.value.length > 2) {
+      playButton.disabled = false
+    } else {
+      playButton.disabled = true
+    }
+  }, 500)
 
 })()
 </script>
