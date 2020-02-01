@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Camera</title>
 <style>
-body { text-align: center; font-size: 125%; }
+body { text-align: center; font-size: 130%; }
 div.container {
     position: relative;
     display: inline-block;
@@ -16,9 +16,10 @@ div.container p {
 div.display {
   position: relative;
   display: inline-block;
-  background:orange;
+  background: royalblue;
   margin-top: 20px;
   overflow: hidden;
+  border-radius: 10px;
   width: 502px;
   height: 376px }
 #video {
@@ -41,21 +42,30 @@ div.id {
 }
 button {
   margin: 10px;
-  font-size: 130%;
-  width:45%;
-  height: 50px }
+  font-size: 125%;
+  width: 60%;
+  height: 42px }
+input {
+  height: 30px;
+  width: 60px;
+  font-size: 115%;
+  text-align: center;
+  border: none }
+.show-id, i {
+  font-size: 24px;
+  font-family: 'Courier New', Courier, monospace }
 </style>
 </head>
 <body>
   <div class="container">
     <p>
       <div class="id">
-        your <i>camera</i> ID is <b><span id="localcamid"></span></b>,
-        remote camera ID is <b><input type="text" id="remotecamid" /></b>  
+        your <i>cam</i> <b>ID</b> is <b><span class="show-id" id="localcamid"></span></b>,
+        remote <i>cam</i> <b>ID</b> is <b><input type="text" id="remotecamid" autofocus /></b>  
       </div>
       <div class="id">
-        your <i>microphone</i> ID is <b><span id="localmicid"></span></b>,
-        remote microphone ID is <b><input type="text" id="remotemicid" /></b>  
+        your <i>mic</i> <b>ID</b> is <b><span class="show-id" id="localmicid"></span></b>,
+        remote <i>mic</i> <b>ID</b> is <b><input type="text" id="remotemicid" /></b>  
       </div>
       <div class="buttons">
         <button id="play-button">Start</button>
@@ -142,8 +152,8 @@ button {
         if (firstTime) {
           firstTime = false
           socketCam.send(remoteCamID.value)
-          remoteCamID.outerHTML = '<span>' + remoteCamID.value + '<span>'
-          remoteMicID.outerHTML = '<span>' + remoteMicID.value + '<span>'
+          remoteCamID.outerHTML = '<span class="show-id">' + remoteCamID.value + '<span>'
+          remoteMicID.outerHTML = '<span class="show-id">' + remoteMicID.value + '<span>'
         }
         video.setAttribute('autoplay', '')
         video.setAttribute('muted', '')
