@@ -68,7 +68,7 @@ input {
         remote <i>mic</i> <b>ID</b> is <b><input type="text" id="remotemicid" /></b>  
       </div>
       <div class="buttons">
-        <button id="play-button">Start</button>
+        <button id="play-button">start</button>
       </div>
       <div class="display">
         <video id="video" autoplay></video>
@@ -162,7 +162,7 @@ input {
         video.setAttribute('playsinline', '')
         video.srcObject = streamCam
         playing = true
-        playButton.innerText = 'Stop'
+        playButton.innerText = 'stop'
         video.style.background = 'none'
         audioCtx = new AudioContext()
         track = audioCtx.createMediaElementSource(audio)
@@ -200,7 +200,7 @@ input {
       track.stop()
     })
     playing = false
-    playButton.innerText = 'Start'
+    playButton.innerText = 'start'
   }
 
   const streamer = setInterval(() => {
