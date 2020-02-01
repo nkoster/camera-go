@@ -26,7 +26,6 @@ type MicClient struct {
 
 var camClients = make(map[string]CamClient)
 
-// MicClients do your shit
 var micClients = make(map[string]MicClient)
 
 var mu sync.Mutex
@@ -73,15 +72,15 @@ func main() {
 					camClients[ID] = CamClient{conn: conn, localID: ID, remoteID: string(data)}
 				}
 				if mt == 2 {
-					for id, client := range camClients {
-						if id == camClients[ID].remoteID && client.conn != nil {
+					for _, client := range camClients {
+						if client.conn == conn {
 							mu.Lock()
-							if err := client.conn.WriteMessage(2, data); err != nil {
+							if err := camClients[client.remoteID].conn.WriteMessage(2, data); err != nil {
 								log.Println(err)
-								if err := client.conn.Close(); err != nil {
+								if err := camClients[client.remoteID].conn.Close(); err != nil {
 									log.Println(err)
 								}
-								delete(camClients, id)
+								delete(camClients, client.remoteID)
 							}
 							mu.Unlock()
 						}
@@ -110,7 +109,6 @@ func main() {
 		}
 		mu.Unlock()
 		log.Println("mic connection", r.RemoteAddr, ID)
-
 		go func(conn *websocket.Conn) {
 			for {
 				mt, data, connErr := conn.ReadMessage()
@@ -122,18 +120,18 @@ func main() {
 					micClients[ID] = MicClient{conn: conn, localID: ID, remoteID: string(data)}
 				}
 				if mt == 2 {
-					for id, client := range micClients {
-						if id == micClients[ID].remoteID && client.conn != nil {
-							mu.Lock()
-							if err := client.conn.WriteMessage(2, data); err != nil {
+					for _, client := range micClients {
+						mu.Lock()
+						if client.conn == conn {
+							if err := micClients[client.remoteID].conn.WriteMessage(2, data); err != nil {
 								log.Println(err)
-								if err := client.conn.Close(); err != nil {
+								if err := micClients[client.remoteID].conn.Close(); err != nil {
 									log.Println(err)
 								}
-								delete(micClients, id)
+								delete(micClients, client.remoteID)
 							}
-							mu.Unlock()
 						}
+						mu.Unlock()
 					}
 				}
 			}
