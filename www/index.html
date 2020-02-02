@@ -8,6 +8,7 @@ body { text-align: center; font-size: 130%; }
 div.container {
     position: relative;
     display: inline-block;
+    margin-top: 60px;
     padding: 20px;
     background: #f0f0f0 }
 div.container p {
@@ -19,18 +20,18 @@ div.display {
   background: royalblue;
   margin-top: 20px;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: 8px;
   width: 502px;
   height: 376px }
 #video {
   position: absolute;
   display: block;
-  background: skyblue;
+  background: cornflowerblue;
   z-index: 100;
   top: -1px;
   right: -2px;
   width: 125px;
-  border-bottom-left-radius: 10px;
+  border-bottom-left-radius: 8px;
   height: 91px }
 #receive {
   position: relative;
@@ -194,11 +195,7 @@ input {
     video.srcObject.getTracks().forEach(track => {
       track.stop()
     })
-    audio.srcObject &&
-    audio.srcObject.getTracks().forEach(track => {
-      console.log('audio stopped')
-      track.stop()
-    })
+    audioCtx.close()
     playing = false
     playButton.innerText = 'start'
   }
