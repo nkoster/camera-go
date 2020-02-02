@@ -35,11 +35,9 @@ func main() {
 		showHTML = "html:" + serverHTML
 	}
 	log.Println("ws video test ->", serverHost+":"+serverPort, showHTML)
-	if serverHTML != "" {
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			http.ServeFile(w, r, serverHTML)
-		})
-	}
+	fs := http.FileServer(http.Dir("./"))
+	http.Handle("/", fs)
+
 	http.HandleFunc("/cam", func(w http.ResponseWriter, r *http.Request) {
 		upgrader.CheckOrigin = func(r *http.Request) bool {
 			return true
