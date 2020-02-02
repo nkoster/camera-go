@@ -275,7 +275,10 @@ input {
   }, interval)
 
   const enablePlayButton = setInterval(() => {
-    if (remoteCamID.value.length > 2 && remoteMicID.value.length > 2) {
+    if (remoteCamID.value.length > 2 &&
+        remoteMicID.value.length > 2 && 
+        localCamID.innerHTML !== remoteCamID.value &&
+        localMicID.innerHTML !== remoteMicID.value) {
       playButton.disabled = false
     } else {
       playButton.disabled = true
