@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>Camera</title>
+<title>Cammic</title>
 <style>
 body {
   text-align: center;
@@ -25,9 +25,57 @@ div.display {
   background: royalblue;
   margin-top: 20px;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 12px;
   width: 502px;
   height: 376px }
+#LT {
+  position: absolute;
+  overflow: hidden;
+  display: block;
+  z-index: 99;
+  top: 3px;
+  left: 0;
+  width: 125px;
+  height: 91px;
+  cursor: move;
+  border-bottom-right-radius: 8px;
+}
+#RT {
+  position: absolute;
+  overflow: hidden;
+  display: block;
+  z-index: 99;
+  top: 3px;
+  right: 3px;
+  width: 125px;
+  height: 91px;
+  cursor: move;
+  border-bottom-left-radius: 8px;
+}
+#LB {
+  position: absolute;
+  overflow: hidden;
+  display: block;
+  z-index: 99;
+  bottom: 3px;
+  left: 0;
+  width: 125px;
+  height: 91px;
+  cursor: move;
+  border-top-right-radius: 8px;
+}
+#RB {
+  position: absolute;
+  overflow: hidden;
+  display: block;
+  z-index: 99;
+  bottom: 3px;
+  right: 3px;
+  width: 125px;
+  height: 91px;
+  cursor: move;
+  border-top-left-radius: 8px;
+}
 #video {
   position: absolute;
   display: block;
@@ -36,7 +84,7 @@ div.display {
   top: -1px;
   right: -2px;
   width: 125px;
-  border-bottom-left-radius: 8px;
+  border-radius: 8px;
   height: 91px }
 #receive {
   position: relative;
@@ -76,7 +124,12 @@ input {
         <button id="play-button">start</button>
       </div>
       <div class="display">
-        <video id="video" autoplay></video>
+        <div id="LT" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)"></div>
+        <div id="RT" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)">
+          <video id="video" draggable="true" ondragstart="drag(event)" autoplay></video>
+        </div>
+        <div id="LB" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)"></div>
+        <div id="RB" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)"></div>
         <img id="receive" alt=""/>
       </div>
       <audio id="audio"></audio>
@@ -98,7 +151,11 @@ input {
     image = document.getElementById('receive'),
     video = document.getElementById('video'),
     audio = document.getElementById('audio'),
-    canvas = document.createElement('canvas')
+    canvas = document.createElement('canvas'),
+    LT = document.getElementById('LT'),
+    RT = document.getElementById('RT'),
+    LB = document.getElementById('LB'),
+    RB = document.getElementById('RB')
 
   let
     firstTime = true,
@@ -116,6 +173,11 @@ input {
   canvas.height = display.height
 
   playButton.disabled = true
+
+  LT.style.transition = 'all .4s ease'
+  RT.style.transition = 'all .4s ease'
+  LB.style.transition = 'all .4s ease'
+  RB.style.transition = 'all .4s ease'
 
   socketCam.onmessage = msg => {
     if (typeof msg.data === 'string') {
@@ -218,6 +280,29 @@ input {
       playButton.disabled = true
     }
   }, 500)
+
+  allowDrop = evt => evt.preventDefault()
+
+  drag = evt => evt.dataTransfer.setData("text", evt.target.id)
+
+  dragging = () => {
+    LT.style.border = '1px dotted white'
+    RT.style.border = '1px dotted white'
+    LB.style.border = '1px dotted white'
+    RB.style.border = '1px dotted white'
+  }
+
+  stopDragging = () => {
+    LT.style.border = '0 dotted white'
+    RT.style.border = '0 dotted white'
+    LB.style.border = '0 dotted white'
+    RB.style.border = '0 dotted white'
+  }
+
+  drop = evt => {
+    evt.preventDefault()
+    evt.target.appendChild(document.getElementById(evt.dataTransfer.getData("text")))
+  }
 
 })()
 </script>
