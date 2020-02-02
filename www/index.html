@@ -237,6 +237,7 @@ input {
         track.connect(audioCtx.destination)
       })
       .catch(err => {
+        alert(err.message)
         console.log(err)
       })
 
@@ -252,6 +253,7 @@ input {
         }
       })
       .catch(err => {
+        alert(err.message)
         console.log(err)
       })
     }
