@@ -19,20 +19,18 @@ body {
   box-shadow: 0 0 40px darkgray;
   border-radius: 20px;
   overflow: hidden;
+  padding: 0;
+  margin: 0;
 }
 #moveheader {
-  /* display: inline-block; */
-  /* padding: 10px; */
   cursor: move;
   z-index: 10;
-  /* height: 20px; */
 }
 div#container {
   z-index: 2;
   position: relative;
   display: inline-block;
-  /* margin-top: 60px; */
-  padding: 20px;
+  padding: 10px 26px 0 26px;
   background: #f0f0f0 }
 div#container p {
   text-align: center }
@@ -106,6 +104,7 @@ div.display {
   height: 376px }
 div.id {
   position: relative;
+  height: 30px;
   padding-bottom: 20px }
 button {
   margin: 10px;
@@ -373,11 +372,11 @@ input {
     move.style.height = '0'
     move.style.top = 60 + moveHeight + 'px'
     move.style.left = (window.innerWidth / 2) - (move.offsetWidth / 2) + 'px'
-    move.style.top = '60px'
+    move.style.top = '80px'
     move.style.transition = 'all .5s ease'
     setTimeout(() => {
       move.style.opacity = '1'
-      move.style.top = '60px'
+      move.style.top = '80px'
       move.style.height = moveHeight + 'px'
       setTimeout(() => move.style.transition = '', 1000)
     }, 200)
