@@ -11,13 +11,30 @@ body {
   background-size: auto;
   background-position: center center;
   font-size: 130% }
-div.container {
-    position: relative;
-    display: inline-block;
-    margin-top: 60px;
-    padding: 20px;
-    background: #f0f0f0 }
-div.container p {
+#move {
+  position: absolute;
+  opacity: 0;
+  z-index: 9;
+  text-align: center;
+  box-shadow: 0 0 40px darkgray;
+  border-radius: 20px;
+  overflow: hidden;
+}
+#moveheader {
+  /* display: inline-block; */
+  /* padding: 10px; */
+  cursor: move;
+  z-index: 10;
+  /* height: 20px; */
+}
+div#container {
+  z-index: 2;
+  position: relative;
+  display: inline-block;
+  /* margin-top: 60px; */
+  padding: 20px;
+  background: #f0f0f0 }
+div#container p {
   text-align: center }
 div.display {
   position: relative;
@@ -108,30 +125,33 @@ input {
 </style>
 </head>
 <body>
-  <div class="container">
-    <p>
-      <div class="id">
-        your <i>cam</i> <b>ID</b> is <b><span class="show-id" id="localcamid"></span></b>,
-        remote <i>cam</i> <b>ID</b> is <b><input type="text" id="remotecamid" autofocus /></b>  
-      </div>
-      <div class="id">
-        your <i>mic</i> <b>ID</b> is <b><span class="show-id" id="localmicid"></span></b>,
-        remote <i>mic</i> <b>ID</b> is <b><input type="text" id="remotemicid" /></b>  
-      </div>
-      <div class="buttons">
-        <button id="play-button">start</button>
-      </div>
-      <div class="display">
-        <div id="LT" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)"></div>
-        <div id="RT" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)">
-          <video id="video" draggable="true" ondragstart="drag(event)" autoplay></video>
+  <div id="move">
+    <div id="moveheader">&nbsp;</div>
+    <div id="container">
+      <p>
+        <div class="id">
+          your <i>cam</i> <b>ID</b> is <b><span class="show-id" id="localcamid"></span></b>,
+          remote <i>cam</i> <b>ID</b> is <b><input type="text" id="remotecamid" autofocus /></b>  
         </div>
-        <div id="LB" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)"></div>
-        <div id="RB" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)"></div>
-        <img id="receive" alt=""/>
-      </div>
-      <audio id="audio"></audio>
-    </p>
+        <div class="id">
+          your <i>mic</i> <b>ID</b> is <b><span class="show-id" id="localmicid"></span></b>,
+          remote <i>mic</i> <b>ID</b> is <b><input type="text" id="remotemicid" /></b>  
+        </div>
+        <div class="buttons">
+          <button id="play-button">start</button>
+        </div>
+        <div class="display">
+          <div id="LT" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)"></div>
+          <div id="RT" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)">
+            <video id="video" draggable="true" ondragstart="drag(event)" autoplay></video>
+          </div>
+          <div id="LB" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)"></div>
+          <div id="RB" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)"></div>
+          <img id="receive" alt=""/>
+        </div>
+        <audio id="audio"></audio>
+      </p>
+    </div>
   </div>
 <script>
 (() => {
@@ -141,6 +161,7 @@ input {
     remoteCamID = document.getElementById('remotecamid'),
     remoteMicID = document.getElementById('remotemicid'),
     playButton = document.getElementById('play-button'),
+    move = document.getElementById('move'),
     display = { width: 502, height: 376, quality: 0.3, fps: 16 },
     interval = 1000 / display.fps,
     proto = location.protocol === 'http:' ? 'ws' : 'wss',
@@ -289,17 +310,19 @@ input {
   drag = evt => evt.dataTransfer.setData("text", evt.target.id)
 
   dragging = () => {
-    LT.style.border = '4px dashed cornflowerblue'
-    RT.style.border = '4px dashed cornflowerblue'
-    LB.style.border = '4px dashed cornflowerblue'
-    RB.style.border = '4px dashed cornflowerblue'
+    const border = '4px dashed cornflowerblue'
+    LT.style.border = border
+    RT.style.border = border
+    LB.style.border = border
+    RB.style.border = border
   }
 
   stopDragging = () => {
-    LT.style.border = '0 dashed cornflowerblue'
-    RT.style.border = '0 dashed cornflowerblue'
-    LB.style.border = '0 dashed cornflowerblue'
-    RB.style.border = '0 dashed cornflowerblue'
+    const border = '0 dashed cornflowerblue'
+    LT.style.border = border
+    RT.style.border = border
+    LB.style.border = border
+    RB.style.border = border
   }
 
   drop = evt => {
@@ -307,7 +330,61 @@ input {
     evt.target.appendChild(document.getElementById(evt.dataTransfer.getData("text")))
   }
 
+  const dragElement = elmnt => {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0
+
+    const dragMouseDown = evt => {
+      evt = evt || window.event
+      evt.preventDefault()
+      pos3 = evt.clientX
+      pos4 = evt.clientY
+      document.onmouseup = closeDragElement
+      document.onmousemove = elementDrag
+    }
+
+    if (document.getElementById(elmnt.id + 'header')) {
+      document.getElementById(elmnt.id + 'header').onmousedown = dragMouseDown
+    } else {
+      elmnt.onmousedown = dragMouseDown
+    }
+
+    const elementDrag = evt => {
+      evt = evt || window.event
+      evt.preventDefault()
+      pos1 = pos3 - evt.clientX
+      pos2 = pos4 - evt.clientY
+      pos3 = evt.clientX
+      pos4 = evt.clientY
+      elmnt.style.top = (elmnt.offsetTop - pos2) + 'px'
+      elmnt.style.left = (elmnt.offsetLeft - pos1) + 'px'
+    }
+
+    const closeDragElement = () => {
+      document.onmouseup = null
+      document.onmousemove = null
+    }
+
+  }
+
+  dragElement(document.getElementById('move'))
+
+  setTimeout(() => {
+    const moveHeight = move.offsetHeight
+    move.style.height = '0'
+    move.style.top = 60 + moveHeight + 'px'
+    move.style.left = (window.innerWidth / 2) - (move.offsetWidth / 2) + 'px'
+    move.style.top = '60px'
+    move.style.transition = 'all .5s ease'
+    setTimeout(() => {
+      move.style.opacity = '1'
+      move.style.top = '60px'
+      move.style.height = moveHeight + 'px'
+      setTimeout(() => move.style.transition = '', 1000)
+    }, 200)
+  }, 100)
+
 })()
 </script>
+
 </body>
 </html>
