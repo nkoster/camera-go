@@ -49,7 +49,7 @@ div.display {
   display: block;
   z-index: 99;
   top: 5px;
-  left: 3px;
+  left: 5px;
   width: 125px;
   height: 91px;
   border-radius: 8px;
@@ -71,7 +71,7 @@ div.display {
   display: block;
   z-index: 99;
   bottom: 7px;
-  left: 3px;
+  left: 5px;
   width: 125px;
   height: 91px;
   border-radius: 8px;
@@ -94,8 +94,6 @@ div.display {
   cursor: move;
   border-radius: 8px;
   z-index: 100;
-  top: -1px;
-  right: -2px;
   width: 125px;
   height: 91px }
 #receive {
@@ -140,12 +138,12 @@ input {
           <button id="play-button">start</button>
         </div>
         <div class="display">
-          <div id="LT" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)"></div>
-          <div id="RT" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)">
-            <video id="video" draggable="true" ondragstart="drag(event)" autoplay></video>
+          <div id="LT"></div>
+          <div id="RT">
+            <video id="video" draggable="true" autoplay></video>
           </div>
-          <div id="LB" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)"></div>
-          <div id="RB" ondrop="drop(event)" ondrag="dragging()" ondragend="stopDragging()" ondragover="allowDrop(event)"></div>
+          <div id="LB"></div>
+          <div id="RB"></div>
           <img id="receive" alt=""/>
         </div>
         <audio id="audio"></audio>
@@ -304,11 +302,11 @@ input {
     }
   }, 500)
 
-  allowDrop = evt => evt.preventDefault()
+  const allowDrop = evt => evt.preventDefault()
 
-  drag = evt => evt.dataTransfer.setData("text", evt.target.id)
+  const drag = evt => evt.dataTransfer.setData("text", evt.target.id)
 
-  dragging = () => {
+  const dragging = () => {
     const border = '4px dashed cornflowerblue'
     LT.style.border = border
     RT.style.border = border
@@ -316,7 +314,7 @@ input {
     RB.style.border = border
   }
 
-  stopDragging = () => {
+  const stopDragging = () => {
     const border = '0 dashed cornflowerblue'
     LT.style.border = border
     RT.style.border = border
@@ -324,10 +322,16 @@ input {
     RB.style.border = border
   }
 
-  drop = evt => {
+  const drop = evt => {
     evt.preventDefault()
     evt.target.appendChild(document.getElementById(evt.dataTransfer.getData("text")))
   }
+
+  video.ondragstart = drag
+  LT.ondrop = drop; RT.ondrop = drop; LB.ondrop = drop; RB.ondrop = drop
+  LT.ondrag = dragging; RT.ondrag = dragging; LB.ondrag = dragging; RB.ondrag = dragging
+  LT.ondragover = allowDrop; RT.ondragover = allowDrop; LB.ondragover = allowDrop; RB.ondragover = allowDrop
+  LT.ondragend = stopDragging; RT.ondragend = stopDragging; LB.ondragend = stopDragging; RB.ondragend = stopDragging
 
   const dragElement = elmnt => {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0
