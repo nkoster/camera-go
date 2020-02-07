@@ -14,13 +14,13 @@ git clone https://github.com/nkoster/camera-go
 cd camera-go
 go get github.com/gorilla/websocket
 go build
-./camera-go
+./camera-go -html ./www/
 ````
 
 or
 
 ```
-go run *.go
+go run *.go -html ./www/
 ```
 
 Open http://localhost:8086 on, for example, two laptops with cam and mic, and exchange IDs.
