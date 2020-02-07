@@ -354,12 +354,14 @@ input {
     const elementDrag = evt => {
       evt = evt || window.event
       evt.preventDefault()
-      pos1 = pos3 - evt.clientX
-      pos2 = pos4 - evt.clientY
-      pos3 = evt.clientX
-      pos4 = evt.clientY
-      elmnt.style.top = (elmnt.offsetTop - pos2) + 'px'
-      elmnt.style.left = (elmnt.offsetLeft - pos1) + 'px'
+      if (evt.clientX > 0 && evt.clientY > 0) {
+        pos1 = pos3 - evt.clientX
+        pos2 = pos4 - evt.clientY
+        pos3 = evt.clientX
+        pos4 = evt.clientY
+        elmnt.style.top = (elmnt.offsetTop - pos2) + 'px'
+        elmnt.style.left = (elmnt.offsetLeft - pos1) + 'px'
+      }
     }
 
     const closeDragElement = () => {
