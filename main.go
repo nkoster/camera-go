@@ -128,6 +128,8 @@ func main() {
 										log.Println(err)
 									}
 									delete(micClients, client.remoteID)
+								} else {
+									// log.Println("--->", client.remoteID)
 								}
 							}
 						}
