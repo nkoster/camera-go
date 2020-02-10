@@ -177,8 +177,6 @@ input {
     firstTime = true,
     playing = false
 
-  socketMic.binaryType = 'arraybuffer'
-
   image.width = display.width
   image.height = display.height
 
@@ -207,7 +205,6 @@ input {
 
   socketMic.onmessage = msg => {
     if (typeof msg.data === 'string') {
-      console.log(msg)
       localMicID.innerHTML = msg.data
       setTimeout(() => socketMic.send(msg.data), 100)
     } else {
@@ -237,6 +234,7 @@ input {
         if (firstTime) {
           firstTime = false
           socketCam.send(remoteCamID.value)
+          socketMic.send(remoteMicID.value)
           remoteCamID.outerHTML = '<span class="show-id">' + remoteCamID.value + '<span>'
           remoteMicID.outerHTML = '<span class="show-id">' + remoteMicID.value + '<span>'
         }
@@ -297,6 +295,7 @@ input {
         localCamID.innerHTML !== remoteCamID.value &&
         localMicID.innerHTML !== remoteMicID.value) {
       playButton.disabled = false
+      socketMic.binaryType = 'arraybuffer'
     } else {
       playButton.disabled = true
     }
@@ -379,7 +378,7 @@ input {
     move.style.top = 60 + moveHeight + 'px'
     move.style.left = (window.innerWidth / 2) - (move.offsetWidth / 2) + 'px'
     move.style.top = '80px'
-    move.style.transition = 'all .3s ease,top .6s ease'
+    move.style.transition = 'all .4s ease,top .8s ease'
     setTimeout(() => {
       move.style.opacity = '1'
       move.style.top = '80px'
