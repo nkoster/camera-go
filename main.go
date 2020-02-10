@@ -52,8 +52,6 @@ func main() {
 		mu.Lock()
 		if err := conn.WriteMessage(1, []byte(ID)); err != nil {
 			log.Println(err)
-			conn.Close()
-			delete(camClients, ID)
 		}
 		mu.Unlock()
 		log.Println("cam connection", r.RemoteAddr, ID)
@@ -66,6 +64,7 @@ func main() {
 				}
 				if mt == 1 {
 					camClients[ID] = CamClient{conn, string(data)}
+					log.Println("cam ids", ID, string(data))
 				}
 				if mt == 2 {
 					for _, client := range camClients {
@@ -103,7 +102,7 @@ func main() {
 		if err := conn.WriteMessage(1, []byte(ID)); err != nil {
 			log.Println(err)
 			conn.Close()
-			delete(micClients, ID)
+			delete(camClients, ID)
 		}
 		mu.Unlock()
 		log.Println("mic connection", r.RemoteAddr, ID)
@@ -116,24 +115,23 @@ func main() {
 				}
 				if mt == 1 {
 					micClients[ID] = MicClient{conn, string(data)}
+					log.Println("mic ids", ID, string(data))
 				}
 				if mt == 2 {
 					for _, client := range micClients {
-						mu.Lock()
 						if client.conn == conn {
 							if _, ok := micClients[client.remoteID]; ok {
+								mu.Lock()
 								if err := micClients[client.remoteID].conn.WriteMessage(2, data); err != nil {
 									log.Println(err)
 									if err := micClients[client.remoteID].conn.Close(); err != nil {
 										log.Println(err)
 									}
 									delete(micClients, client.remoteID)
-								} else {
-									// log.Println("--->", client.remoteID)
 								}
+								mu.Unlock()
 							}
 						}
-						mu.Unlock()
 					}
 				}
 			}

@@ -231,7 +231,7 @@ input {
   }
 
   const startPlaying = () => {
-    if (!playing && remoteCamID.value.length > 2) {
+    if (!playing && remoteCamID.value.length > 2 && remoteMicID.value.length > 2) {
       navigator.mediaDevices.getUserMedia({ video: true })
       .then(streamCam => {
         if (firstTime) {
@@ -379,7 +379,7 @@ input {
     move.style.top = 60 + moveHeight + 'px'
     move.style.left = (window.innerWidth / 2) - (move.offsetWidth / 2) + 'px'
     move.style.top = '80px'
-    move.style.transition = 'all .5s ease'
+    move.style.transition = 'all .3s ease,top .6s ease'
     setTimeout(() => {
       move.style.opacity = '1'
       move.style.top = '80px'
