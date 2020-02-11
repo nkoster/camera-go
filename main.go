@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -35,9 +36,11 @@ func main() {
 		showHTML = "html:" + serverHTML
 	}
 	log.Println("ws video test ->", serverHost+":"+serverPort, showHTML)
-	fs := http.FileServer(http.Dir("./"))
-	http.Handle("/", fs)
-
+	// fs := http.FileServer(http.Dir("./"))
+	// http.Handle("/", fs)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, html())
+	})
 	http.HandleFunc("/cam", func(w http.ResponseWriter, r *http.Request) {
 		upgrader.CheckOrigin = func(r *http.Request) bool {
 			return true
