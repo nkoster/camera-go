@@ -1,0 +1,7 @@
+package main
+
+func html() string {
+	return `
+9e31d7ffe4b03a35f666ae495f72964c
+	 `
+}
