@@ -169,7 +169,7 @@ input {
     remoteMicID = document.getElementById('remotemicid'),
     playButton = document.getElementById('play-button'),
     move = document.getElementById('move'),
-    display = { width: 502, height: 376, quality: 0.3, fps: 16 },
+    display = { width: 502, height: 376, quality: 0.3, fps: 14 },
     interval = 1000 / display.fps,
     proto = location.protocol === 'http:' ? 'ws' : 'wss',
     socketCam = new WebSocket(proto + '://' + location.host + '/cam'),
@@ -240,7 +240,7 @@ input {
       setTimeout(() => socketMic.send(msg.data), 100)
     } else {
       if (playing) {
-        audioBuffer = audioCtx.createBuffer(1, 2048, 44100)
+        audioBuffer = audioCtx.createBuffer(1, 2048, 46050)
         if (useFloat) {
           audioBuffer.getChannelData(0).set(new Float32Array(msg.data))
         } else {
