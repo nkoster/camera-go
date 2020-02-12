@@ -395,10 +395,9 @@ input {
     await delay(100)
     const moveHeight = move.offsetHeight
     move.style.height = '0'
-    move.style.top = 60 + moveHeight + 'px'
+    move.style.top = moveHeight / 2 + 80 + 'px'
     move.style.left = (window.innerWidth / 2) - (move.offsetWidth / 2) + 'px'
-    move.style.top = '80px'
-    move.style.transition = 'all .5s ease,top .8s ease'
+    move.style.transition = 'all .4s ease'
     await delay(200)
     move.style.opacity = '1'
     move.style.top = '80px'
