@@ -174,6 +174,7 @@ input {
     proto = location.protocol === 'http:' ? 'ws' : 'wss',
     socketCam = new WebSocket(proto + '://' + location.host + '/cam'),
     socketMic = new WebSocket(proto + '://' + location.host + '/mic'),
+    delay = ms => new Promise(resolve => setTimeout(resolve, ms)),
     image = document.getElementById('receive'),
     video = document.getElementById('video'),
     audio = document.getElementById('audio'),
@@ -198,6 +199,9 @@ input {
   canvas.height = display.height
 
   playButton.disabled = true
+
+  remoteCamID.value = ''
+  remoteMicID.value = ''
 
   LT.style.transition = 'all .4s ease'
   RT.style.transition = 'all .4s ease'
@@ -387,20 +391,23 @@ input {
 
   dragElement(document.getElementById('move'))
 
-  setTimeout(() => {
+  const start = async () => {
+    await delay(100)
     const moveHeight = move.offsetHeight
     move.style.height = '0'
     move.style.top = 60 + moveHeight + 'px'
     move.style.left = (window.innerWidth / 2) - (move.offsetWidth / 2) + 'px'
     move.style.top = '80px'
-    move.style.transition = 'all .4s ease,top .8s ease'
-    setTimeout(() => {
-      move.style.opacity = '1'
-      move.style.top = '80px'
-      move.style.height = moveHeight + 'px'
-      setTimeout(() => move.style.transition = '', 1000)
-    }, 200)
-  }, 100)
+    move.style.transition = 'all .5s ease,top .8s ease'
+    await delay(200)
+    move.style.opacity = '1'
+    move.style.top = '80px'
+    move.style.height = moveHeight + 'px'
+    await delay(1000)
+    move.style.transition = ''
+  }
+
+  start()
 
 })()
 </script>
