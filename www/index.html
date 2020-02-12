@@ -182,11 +182,27 @@ input {
     LT = document.getElementById('LT'),
     RT = document.getElementById('RT'),
     LB = document.getElementById('LB'),
-    RB = document.getElementById('RB')
+    RB = document.getElementById('RB'),
+    convertFloat32ToInt16 = buffer => {
+      let l = buffer.length
+      let buf = new Int16Array(l)
+      while (l--) {
+        buf[l] = Math.min(1, buffer[l]) * 0x7fff
+      }
+      return buf.buffer
+    },
+    convertInt16toFloat32 = buffer => {
+      const buf = new Int16Array(buffer)
+      let result = new Float32Array(buf.length)
+      for (let i=0; i<buf.length; i++)
+        result[i] = buf[i] / (buf[i] >= 0 ? 32767 : 32768)
+      return result
+    }
 
   let
     firstTime = true,
     playing = false,
+    useFloat = false,
     streamRef
 
   image.width = display.width
@@ -225,7 +241,11 @@ input {
     } else {
       if (playing) {
         audioBuffer = audioCtx.createBuffer(1, 2048, 44100)
-        audioBuffer.getChannelData(0).set(new Float32Array(msg.data))
+        if (useFloat) {
+          audioBuffer.getChannelData(0).set(new Float32Array(msg.data))
+        } else {
+          audioBuffer.getChannelData(0).set(convertInt16toFloat32(msg.data))
+        }
         source = audioCtx.createBufferSource()
         source.buffer = audioBuffer
         source.connect(audioCtx.destination)
@@ -278,7 +298,11 @@ input {
         source.connect(processor)
         processor.connect(context.destination)
         processor.onaudioprocess = evt => {
-          playing && socketMic.send(new Float32Array(evt.inputBuffer.getChannelData(0)))
+          if (useFloat) {
+            playing && socketMic.send(new Float32Array(evt.inputBuffer.getChannelData(0)))
+          } else {
+            playing && socketMic.send(convertFloat32ToInt16(evt.inputBuffer.getChannelData(0)))
+          }
         }
       })
       .catch(err => {
