@@ -202,7 +202,7 @@ input {
   let
     firstTime = true,
     playing = false,
-    useFloat = false,
+    useFloat = true,
     streamRef
 
   image.width = display.width
@@ -292,9 +292,25 @@ input {
       navigator.mediaDevices.getUserMedia({ audio: true })
       .then(streamMic => {
         streamRef = streamMic
-        const context = new AudioContext()
-        const source = context.createMediaStreamSource(streamMic)
-        const processor = context.createScriptProcessor(2048, 1, 1)
+        const
+          context = new AudioContext(),
+          source = context.createMediaStreamSource(streamMic),
+          processor = context.createScriptProcessor(2048, 1, 1),
+          compressor = context.createDynamicsCompressor(),
+          filter = context.createBiquadFilter()
+        compressor.threshold.value = -50
+        compressor.knee.value = 40
+        compressor.ratio.value = 12
+        compressor.reduction.value = -20
+        compressor.attack.value = 0
+        compressor.release.value = 0.25
+        filter.Q.value = 8.30
+        filter.frequency.value = 355
+        filter.gain.value = 3.0
+        filter.type = 'bandpass'
+        filter.connect(compressor)
+        compressor.connect(context.destination)
+        filter.connect(context.destination)
         source.connect(processor)
         processor.connect(context.destination)
         processor.onaudioprocess = evt => {
@@ -416,6 +432,7 @@ input {
   dragElement(document.getElementById('move'))
 
   const start = async () => {
+    console.log(new Date())
     await delay(100)
     const moveHeight = move.offsetHeight
     move.style.height = '0'
