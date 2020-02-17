@@ -202,7 +202,7 @@ input {
   let
     firstTime = true,
     playing = false,
-    useFloat = true,
+    useFloat = false,
     streamRef
 
   image.width = display.width
@@ -262,6 +262,32 @@ input {
     }
   }
 
+  const visualize = () => {
+    WIDTH = canvas.width
+    HEIGHT = canvas.height
+    analyser.fftSize = 256
+    var bufferLengthAlt = analyser.frequencyBinCount
+    console.log(bufferLengthAlt)
+    var dataArrayAlt = new Uint8Array(bufferLengthAlt)
+    canvasCtx.clearRect(0, 0, WIDTH, HEIGHT)
+    var drawAlt = function() {
+      drawVisual = requestAnimationFrame(drawAlt)
+      analyser.getByteFrequencyData(dataArrayAlt)
+      canvasCtx.fillStyle = 'rgb(0, 0, 0)'
+      canvasCtx.fillRect(0, 0, WIDTH, HEIGHT)
+      var barWidth = (WIDTH / bufferLengthAlt) * 2.5
+      var barHeight
+      var x = 0
+      for (var i = 0; i < bufferLengthAlt; i++) {
+        barHeight = dataArrayAlt[i]
+        canvasCtx.fillStyle = 'rgb(' + (barHeight+100) + ', 50, 50)'
+        canvasCtx.fillRect(x,HEIGHT-barHeight / 2, barWidth,barHeight / 2)
+        x += barWidth + 1
+      }
+    }
+    drawAlt()
+  }
+
   const startPlaying = () => {
     if (!playing && remoteCamID.value.length > 2 && remoteMicID.value.length > 2) {
       navigator.mediaDevices.getUserMedia({ video: true })
@@ -294,23 +320,25 @@ input {
         streamRef = streamMic
         const
           context = new AudioContext(),
+          analyser = context.createAnalyser(),
           source = context.createMediaStreamSource(streamMic),
-          processor = context.createScriptProcessor(2048, 1, 1),
-          compressor = context.createDynamicsCompressor(),
-          filter = context.createBiquadFilter()
-        compressor.threshold.value = -50
-        compressor.knee.value = 40
-        compressor.ratio.value = 12
-        compressor.reduction.value = -20
-        compressor.attack.value = 0
-        compressor.release.value = 0.25
-        filter.Q.value = 8.30
-        filter.frequency.value = 355
-        filter.gain.value = 3.0
-        filter.type = 'bandpass'
-        filter.connect(compressor)
-        compressor.connect(context.destination)
-        filter.connect(context.destination)
+          processor = context.createScriptProcessor(2048, 1, 1)
+        //   compressor = context.createDynamicsCompressor(),
+        //   filter = context.createBiquadFilter()
+        // compressor.threshold.value = -50
+        // compressor.knee.value = 40
+        // compressor.ratio.value = 12
+        // compressor.reduction.value = -20
+        // compressor.attack.value = 0
+        // compressor.release.value = 0.25
+        // filter.Q.value = 8.30
+        // filter.frequency.value = 355
+        // filter.gain.value = 3.0
+        // filter.type = 'bandpass'
+        // filter.connect(compressor)
+        // compressor.connect(context.destination)
+        // filter.connect(context.destination)
+        analyser.connect(context.destination)
         source.connect(processor)
         processor.connect(context.destination)
         processor.onaudioprocess = evt => {
