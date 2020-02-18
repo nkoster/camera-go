@@ -279,11 +279,8 @@ input {
   can.setAttribute('height', 30)
 
   const visualize = () => {
-    WIDTH = can.offsetWidth
-    HEIGHT = can.offsetHeight
-    // WIDTH = 100
-    // HEIGHT = 30
-    console.log(WIDTH, HEIGHT)
+    const WIDTH = can.offsetWidth
+    const HEIGHT = can.offsetHeight
     analyser.fftSize = 256
     var bufferLengthAlt = analyser.frequencyBinCount
     console.log(bufferLengthAlt)
@@ -301,7 +298,7 @@ input {
         barHeight = dataArrayAlt[i]
         canvasCtx.fillStyle = 'rgb(200,200,200)'
         // canvasCtx.fillStyle = 'rgb(' + (barHeight+100) + ', ' + (barHeight+100) + ', ' + (barHeight+100) + ')'
-        canvasCtx.fillRect(x, HEIGHT - barHeight / 3, barWidth, barHeight / 3)
+        canvasCtx.fillRect(x, HEIGHT - barHeight / 4, barWidth, barHeight / 4)
         x += barWidth + 1
       }
     }
