@@ -172,8 +172,8 @@ input {
     remoteCamID = document.getElementById('remotecamid'),
     remoteMicID = document.getElementById('remotemicid'),
     playButton = document.getElementById('play-button'),
-    can = document.querySelector('.visualizer'),
-    canvasCtx = can.getContext('2d'),
+    visCan = document.querySelector('.visualizer'),
+    visCanCtx = visCan.getContext('2d'),
     move = document.getElementById('move'),
     display = { width: 502, height: 376, quality: 0.3, fps: 14 },
     interval = 1000 / display.fps,
@@ -269,29 +269,28 @@ input {
     }
   }
 
-  can.setAttribute('width', 502)
-  can.setAttribute('height', 30)
+  visCan.setAttribute('width', 502)
+  visCan.setAttribute('height', 30)
 
   const visualize = () => {
-    const WIDTH = can.offsetWidth
-    const HEIGHT = can.offsetHeight
+    const WIDTH = visCan.offsetWidth
+    const HEIGHT = visCan.offsetHeight
     analyser.fftSize = 256
     let bufferLength = analyser.frequencyBinCount
-    console.log(bufferLength)
     let dataArray = new Uint8Array(bufferLength)
-    canvasCtx.clearRect(0, 0, WIDTH, HEIGHT)
+    visCanCtx.clearRect(0, 0, WIDTH, HEIGHT)
     const draw = () => {
       drawVisual = requestAnimationFrame(draw)
       analyser.getByteFrequencyData(dataArray)
-      canvasCtx.fillStyle = '#f0f0f0'
-      canvasCtx.fillRect(0, 0, WIDTH, HEIGHT)
+      visCanCtx.fillStyle = '#f0f0f0'
+      visCanCtx.fillRect(0, 0, WIDTH, HEIGHT)
       let barWidth = (WIDTH / bufferLength) * 2.5
       let barHeight
       let x = 0
       for (let i = 0; i < bufferLength; i++) {
         barHeight = dataArray[i]
-        canvasCtx.fillStyle = 'rgb(185,185,195)'
-        canvasCtx.fillRect(x, HEIGHT - barHeight / 5, barWidth, barHeight / 5)
+        visCanCtx.fillStyle = 'rgb(185,185,195)'
+        visCanCtx.fillRect(x, HEIGHT - barHeight / 5, barWidth, barHeight / 5)
         x += barWidth + 1
       }
     }
