@@ -278,24 +278,24 @@ input {
     analyser.fftSize = 256
     let bufferLength = analyser.frequencyBinCount
     console.log(bufferLength)
-    let dataArrayAlt = new Uint8Array(bufferLength)
+    let dataArray = new Uint8Array(bufferLength)
     canvasCtx.clearRect(0, 0, WIDTH, HEIGHT)
-    const drawAlt = () => {
-      drawVisual = requestAnimationFrame(drawAlt)
-      analyser.getByteFrequencyData(dataArrayAlt)
+    const draw = () => {
+      drawVisual = requestAnimationFrame(draw)
+      analyser.getByteFrequencyData(dataArray)
       canvasCtx.fillStyle = '#f0f0f0'
       canvasCtx.fillRect(0, 0, WIDTH, HEIGHT)
       let barWidth = (WIDTH / bufferLength) * 2.5
       let barHeight
       let x = 0
       for (let i = 0; i < bufferLength; i++) {
-        barHeight = dataArrayAlt[i]
+        barHeight = dataArray[i]
         canvasCtx.fillStyle = 'rgb(185,185,195)'
-        canvasCtx.fillRect(x, HEIGHT - barHeight / 4, barWidth, barHeight / 4)
+        canvasCtx.fillRect(x, HEIGHT - barHeight / 5, barWidth, barHeight / 5)
         x += barWidth + 1
       }
     }
-    drawAlt()
+    draw()
   }
 
   const startPlaying = () => {
