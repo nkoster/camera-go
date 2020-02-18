@@ -129,6 +129,15 @@ input {
 .show-id, i {
   font-size: 24px;
   font-family: 'Courier New', Courier, monospace }
+.visualizer {
+  position: absolute;
+  left: 10px;
+  top: 200px;
+  /* height: 100px;
+  width: 200px;
+  background: lime; */
+  z-index: 200;
+}
 </style>
 </head>
 <body>
@@ -147,6 +156,7 @@ input {
         <div class="buttons">
           <button id="play-button">start</button>
         </div>
+        <canvas class="visualizer"></canvas>
         <div class="display">
           <div id="LT"></div>
           <div id="RT">
@@ -168,6 +178,8 @@ input {
     remoteCamID = document.getElementById('remotecamid'),
     remoteMicID = document.getElementById('remotemicid'),
     playButton = document.getElementById('play-button'),
+    can = document.querySelector('.visualizer'),
+    canvasCtx = can.getContext('2d'),
     move = document.getElementById('move'),
     display = { width: 502, height: 376, quality: 0.3, fps: 14 },
     interval = 1000 / display.fps,
@@ -203,6 +215,7 @@ input {
     firstTime = true,
     playing = false,
     useFloat = false,
+    analyser, drawVisual,
     streamRef
 
   image.width = display.width
@@ -262,9 +275,11 @@ input {
     }
   }
 
+  // can.setAttribute('width',200);
   const visualize = () => {
-    WIDTH = canvas.width
-    HEIGHT = canvas.height
+    WIDTH = can.offsetWidth
+    HEIGHT = can.offsetHeight
+    console.log(WIDTH, HEIGHT)
     analyser.fftSize = 256
     var bufferLengthAlt = analyser.frequencyBinCount
     console.log(bufferLengthAlt)
@@ -273,15 +288,16 @@ input {
     var drawAlt = function() {
       drawVisual = requestAnimationFrame(drawAlt)
       analyser.getByteFrequencyData(dataArrayAlt)
-      canvasCtx.fillStyle = 'rgb(0, 0, 0)'
+      canvasCtx.fillStyle = 'rgb(100, 100, 100)'
       canvasCtx.fillRect(0, 0, WIDTH, HEIGHT)
       var barWidth = (WIDTH / bufferLengthAlt) * 2.5
       var barHeight
       var x = 0
       for (var i = 0; i < bufferLengthAlt; i++) {
         barHeight = dataArrayAlt[i]
-        canvasCtx.fillStyle = 'rgb(' + (barHeight+100) + ', 50, 50)'
-        canvasCtx.fillRect(x,HEIGHT-barHeight / 2, barWidth,barHeight / 2)
+        canvasCtx.fillStyle = 'rgb(200,200,200)'
+        // canvasCtx.fillStyle = 'rgb(' + (barHeight+100) + ', ' + (barHeight+100) + ', ' + (barHeight+100) + ')'
+        canvasCtx.fillRect(x, HEIGHT-barHeight / 2, barWidth,barHeight / 2)
         x += barWidth + 1
       }
     }
@@ -320,26 +336,11 @@ input {
         streamRef = streamMic
         const
           context = new AudioContext(),
-          analyser = context.createAnalyser(),
           source = context.createMediaStreamSource(streamMic),
           processor = context.createScriptProcessor(2048, 1, 1)
-        //   compressor = context.createDynamicsCompressor(),
-        //   filter = context.createBiquadFilter()
-        // compressor.threshold.value = -50
-        // compressor.knee.value = 40
-        // compressor.ratio.value = 12
-        // compressor.reduction.value = -20
-        // compressor.attack.value = 0
-        // compressor.release.value = 0.25
-        // filter.Q.value = 8.30
-        // filter.frequency.value = 355
-        // filter.gain.value = 3.0
-        // filter.type = 'bandpass'
-        // filter.connect(compressor)
-        // compressor.connect(context.destination)
-        // filter.connect(context.destination)
-        analyser.connect(context.destination)
-        source.connect(processor)
+        analyser = context.createAnalyser()
+        analyser.connect(processor)
+        source.connect(analyser)
         processor.connect(context.destination)
         processor.onaudioprocess = evt => {
           if (useFloat) {
@@ -348,6 +349,8 @@ input {
             playing && socketMic.send(convertFloat32ToInt16(evt.inputBuffer.getChannelData(0)))
           }
         }
+        window.cancelAnimationFrame(drawVisual)
+        visualize()
       })
       .catch(err => {
         alert(err.message)
