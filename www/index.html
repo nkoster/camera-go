@@ -42,7 +42,7 @@ div#container p {
 div.display {
   position: relative;
   display: inline-block;
-  background: #bbc;
+  background:rgb(185,185,195);
   margin-top: 20px;
   overflow: hidden;
   width: 502px;
@@ -276,22 +276,21 @@ input {
     const WIDTH = can.offsetWidth
     const HEIGHT = can.offsetHeight
     analyser.fftSize = 256
-    var bufferLengthAlt = analyser.frequencyBinCount
-    console.log(bufferLengthAlt)
-    var dataArrayAlt = new Uint8Array(bufferLengthAlt)
+    let bufferLength = analyser.frequencyBinCount
+    console.log(bufferLength)
+    let dataArrayAlt = new Uint8Array(bufferLength)
     canvasCtx.clearRect(0, 0, WIDTH, HEIGHT)
-    var drawAlt = function() {
+    const drawAlt = () => {
       drawVisual = requestAnimationFrame(drawAlt)
       analyser.getByteFrequencyData(dataArrayAlt)
       canvasCtx.fillStyle = '#f0f0f0'
       canvasCtx.fillRect(0, 0, WIDTH, HEIGHT)
-      var barWidth = (WIDTH / bufferLengthAlt) * 2.5
-      var barHeight
-      var x = 0
-      for (var i = 0; i < bufferLengthAlt; i++) {
+      let barWidth = (WIDTH / bufferLength) * 2.5
+      let barHeight
+      let x = 0
+      for (let i = 0; i < bufferLength; i++) {
         barHeight = dataArrayAlt[i]
-        canvasCtx.fillStyle = 'rgb(200,200,200)'
-        //canvasCtx.fillStyle = 'rgb(' + (barHeight+130) + ', ' + (barHeight+130) + ', ' + (barHeight+130) + ')'
+        canvasCtx.fillStyle = 'rgb(185,185,195)'
         canvasCtx.fillRect(x, HEIGHT - barHeight / 4, barWidth, barHeight / 4)
         x += barWidth + 1
       }
