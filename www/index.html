@@ -94,7 +94,10 @@ div.display {
 #video {
   position: absolute;
   display: block;
-  background: cornflowerblue;
+  /* background: cornflowerblue; */
+  /* 93bc162ec65c2e0eedd58c2fdd8d1fc8 */
+  background-size: cover;
+  opacity: 0.5;
   cursor: move;
   border-radius: 8px;
   z-index: 100;
@@ -208,7 +211,7 @@ input {
   let
     firstTime = true,
     playing = false,
-    useFloat = false,
+    useFloat = true,
     analyser, drawVisual,
     streamRef
 
@@ -315,6 +318,7 @@ input {
         playing = true
         playButton.innerText = 'stop'
         video.style.background = 'none'
+        video.style.opacity = '1'
         audioCtx = new AudioContext()
         track = audioCtx.createMediaElementSource(audio)
         track.connect(audioCtx.destination)
@@ -389,7 +393,7 @@ input {
   const drag = evt => evt.dataTransfer.setData("text", evt.target.id)
 
   const dragging = () => {
-    const border = '4px dashed cornflowerblue'
+    const border = '5px dashed white'
     LT.style.border = border
     RT.style.border = border
     LB.style.border = border
@@ -397,7 +401,7 @@ input {
   }
 
   const stopDragging = () => {
-    const border = '0 dashed cornflowerblue'
+    const border = '0 dashed white'
     LT.style.border = border
     RT.style.border = border
     LB.style.border = border
