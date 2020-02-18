@@ -275,10 +275,14 @@ input {
     }
   }
 
-  // can.setAttribute('width',200);
+  can.setAttribute('width', 100)
+  can.setAttribute('height', 30)
+
   const visualize = () => {
     WIDTH = can.offsetWidth
     HEIGHT = can.offsetHeight
+    // WIDTH = 100
+    // HEIGHT = 30
     console.log(WIDTH, HEIGHT)
     analyser.fftSize = 256
     var bufferLengthAlt = analyser.frequencyBinCount
@@ -297,7 +301,7 @@ input {
         barHeight = dataArrayAlt[i]
         canvasCtx.fillStyle = 'rgb(200,200,200)'
         // canvasCtx.fillStyle = 'rgb(' + (barHeight+100) + ', ' + (barHeight+100) + ', ' + (barHeight+100) + ')'
-        canvasCtx.fillRect(x, HEIGHT-barHeight / 2, barWidth,barHeight / 2)
+        canvasCtx.fillRect(x, HEIGHT - barHeight / 3, barWidth, barHeight / 3)
         x += barWidth + 1
       }
     }
