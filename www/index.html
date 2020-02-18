@@ -8,13 +8,10 @@ body {
   text-align: center;
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAICAYAAADeM14FAAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AILFTEZVBvpvAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAAMklEQVQI12Pcv/fYfwYkwAJjODhZMjAwMDAwMaABuIoD+45jV8H4/////3hVsMBkYAAA8psO3DrLz+gAAAAASUVORK5CYII=);
   background-repeat: repeat;
-  /* background-size: auto;
-  background-position: center center; */
   font-size: 130% }
 img {
   border: none;
   background-color: transparent;
-  /* clearBorder{border:none;} */
 }
 #move {
   position: absolute;
@@ -48,7 +45,6 @@ div.display {
   background: #bbc;
   margin-top: 20px;
   overflow: hidden;
-  /* border-radius: ; */
   width: 502px;
   height: 376px }
 #LT {
@@ -116,6 +112,7 @@ div.id {
   padding-bottom: 20px }
 button {
   margin: 10px;
+  margin-bottom: 38px;
   font-size: 125%;
   width: 90%;
   height: 42px }
@@ -133,9 +130,6 @@ input {
   position: absolute;
   left: 10px;
   top: 200px;
-  /* height: 100px;
-  width: 200px;
-  background: lime; */
   z-index: 200;
 }
 </style>
@@ -275,7 +269,7 @@ input {
     }
   }
 
-  can.setAttribute('width', 100)
+  can.setAttribute('width', 502)
   can.setAttribute('height', 30)
 
   const visualize = () => {
@@ -289,14 +283,14 @@ input {
     var drawAlt = function() {
       drawVisual = requestAnimationFrame(drawAlt)
       analyser.getByteFrequencyData(dataArrayAlt)
-      canvasCtx.fillStyle = 'rgb(100, 100, 100)'
+      canvasCtx.fillStyle = '#f0f0f0'
       canvasCtx.fillRect(0, 0, WIDTH, HEIGHT)
       var barWidth = (WIDTH / bufferLengthAlt) * 2.5
       var barHeight
       var x = 0
       for (var i = 0; i < bufferLengthAlt; i++) {
         barHeight = dataArrayAlt[i]
-        canvasCtx.fillStyle = 'rgb(200,200,200)'
+        canvasCtx.fillStyle = 'rgb(222,222,222)'
         // canvasCtx.fillStyle = 'rgb(' + (barHeight+100) + ', ' + (barHeight+100) + ', ' + (barHeight+100) + ')'
         canvasCtx.fillRect(x, HEIGHT - barHeight / 4, barWidth, barHeight / 4)
         x += barWidth + 1
