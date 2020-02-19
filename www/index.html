@@ -319,6 +319,7 @@ input {
         playButton.innerText = 'stop'
         video.style.background = 'none'
         video.style.opacity = '1'
+        const AudioContext = window.AudioContext || window.webkitAudioContext
         audioCtx = new AudioContext()
         track = audioCtx.createMediaElementSource(audio)
         track.connect(audioCtx.destination)
